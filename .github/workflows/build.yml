@@ -28,5 +28,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Sheet-debug-${{ matrix.os }}
-          path: build/compose/binaries/main/app
+          name: Elysme-debug-${{ matrix.os }}
+          path: composeApp/build/compose/binaries/main/app
