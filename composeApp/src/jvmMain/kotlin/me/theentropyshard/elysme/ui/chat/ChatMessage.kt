@@ -172,7 +172,10 @@ fun ChatMessage(
                                 horizontalArrangement = Arrangement.End,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(text = "14:48")
+                                Text(
+                                    text = "14:48",
+                                    fontSize = 12.sp
+                                )
 
                                 if (myself) {
                                     Icon(
