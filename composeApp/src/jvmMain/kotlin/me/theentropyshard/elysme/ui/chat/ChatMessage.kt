@@ -125,20 +125,26 @@ fun ChatMessage(
                             Spacer(modifier = Modifier.height(8.dp))
                         }
 
-                        if (message.quote != null) {
+                        val hasQuote = message.hasQuote()
+                        val hasText = message.hasText()
+                        val hasAttachment = message.hasAttachment()
+
+                        if (hasQuote) {
                             ReplyView(
                                 modifier = Modifier.fillMaxWidth(),
                                 reply = message.quote
                             ) { onReplyClick(message.quote.messageId) }
                         }
 
-                        if (message.text != null && message.text.trim().isNotEmpty()) {
+                        if (hasText) {
                             Text(
                                 text = message.text
                             )
+                        } else if (hasQuote && hasAttachment) {
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
 
-                        if (message.file != null) {
+                        if (hasAttachment) {
                             if (message.fileMime.startsWith("image/")) {
                                 val aspectRatio = message.dimensionsWidth.toFloat() / message.dimensionsHeight.toFloat()
 
