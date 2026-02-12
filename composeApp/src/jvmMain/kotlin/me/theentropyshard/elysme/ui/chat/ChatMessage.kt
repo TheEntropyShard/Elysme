@@ -21,6 +21,7 @@ package me.theentropyshard.elysme.ui.chat
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -49,6 +50,8 @@ import io.kamel.image.asyncPainterResource
 import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.model.DcQuote
 import me.theentropyshard.elysme.deltachat.model.DcReactions
+import me.theentropyshard.elysme.ui.theme.otherMessageColorDark
+import me.theentropyshard.elysme.ui.theme.otherMessageColorLight
 import me.theentropyshard.elysme.utils.NoMaxSizeImage
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.max
@@ -102,7 +105,18 @@ fun ChatMessage(
                 Card(
                     modifier = Modifier
                         .widthIn(min = 200.dp, max = maxWidth * 0.85f)
-                        .width(IntrinsicSize.Max)
+                        .width(IntrinsicSize.Max),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (myself) {
+                            MaterialTheme.colorScheme.secondaryContainer
+                        } else {
+                            if (false) {
+                                otherMessageColorDark
+                            } else {
+                                otherMessageColorLight
+                            }
+                        }
+                    )
                 ) {
                     Column(
                         modifier = if (myself) {
