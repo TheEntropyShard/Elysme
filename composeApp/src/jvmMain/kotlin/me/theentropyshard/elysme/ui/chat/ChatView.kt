@@ -28,8 +28,10 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import elysme.composeapp.generated.resources.Res
+import elysme.composeapp.generated.resources.attach24dp
 import elysme.composeapp.generated.resources.send24dp
 import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.viewmodel.MainViewModel
@@ -57,33 +59,26 @@ fun ChatView(
             messages = messages!!
         )
 
-        /*ChatInput(
-            modifier = Modifier.fillMaxWidth(),
+        ChatInput(
+            modifier = Modifier.fillMaxWidth().padding(
+                start = 8.dp, end = 8.dp, bottom = 8.dp
+            ),
             state = text,
             placeholder = { Text(text = "Write a message...") },
-            trailingIcon = {
+            leadingIcon = {
                 IconButton(
                     onClick = {
-                        if (text.text.trim().isNotBlank()) {
-                            onSendMessage(text.text.toString())
-                        }
 
-                        text.edit { delete(start = 0, end = length) }
                     }
                 ) {
                     Icon(
-                        painter = painterResource(Res.drawable.send24dp),
+                        modifier = Modifier.graphicsLayer { rotationZ = 45.0f },
+                        painter = painterResource(Res.drawable.attach24dp),
                         contentDescription = "",
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
-            }
-        )*/
-
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            state = text,
-            placeholder = { Text(text = "Write a message...") },
+            },
             trailingIcon = {
                 IconButton(
                     onClick = {
