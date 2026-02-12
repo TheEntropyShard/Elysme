@@ -65,6 +65,18 @@ public class DcMessage {
 
     }
 
+    public boolean hasText() {
+        return this.text != null && !this.text.trim().isEmpty();
+    }
+
+    public boolean hasQuote() {
+        return this.quote != null;
+    }
+
+    public boolean hasAttachment() {
+        return this.file != null;
+    }
+
     public int getChatId() {
         return this.chatId;
     }
