@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import elysme.composeapp.generated.resources.Res
@@ -89,6 +90,7 @@ fun ChatBody(
             visible = state.firstVisibleItemIndex > 3,
         ) {
             FloatingActionButton(
+                modifier = Modifier.scale(0.75f),
                 shape = CircleShape,
                 // elevation (shadow specifically) is buggy with transitions. not sure which looks better: with or without elevation
                 elevation = FloatingActionButtonDefaults.elevation(
