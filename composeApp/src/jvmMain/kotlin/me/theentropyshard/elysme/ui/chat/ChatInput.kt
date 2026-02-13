@@ -21,11 +21,14 @@ package me.theentropyshard.elysme.ui.chat
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -41,48 +44,57 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import me.theentropyshard.elysme.deltachat.model.DcQuote
 
 @Composable
 fun ChatInput(
     modifier: Modifier = Modifier,
     state: TextFieldState,
+    quote: DcQuote? = null,
     leadingIcon: @Composable () -> Unit = {},
     trailingIcon: @Composable () -> Unit = {},
     placeholder: @Composable () -> Unit = {}
 ) {
-    var lineCount by remember { mutableStateOf(1) }
-
-    val shape = if (lineCount <= 1) {
-        RoundedCornerShape(percent = 50)
+    val shape = if (quote != null) {
+        RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp, topStart = 16.dp, topEnd = 16.dp)
     } else {
-        RoundedCornerShape(16.dp)
+        RoundedCornerShape(24.dp)
     }
 
-    BasicTextField(
+    Column(
         modifier = modifier
             .clip(shape)
-            .animateContentSize()
-            .fillMaxWidth(),
-        state = state,
-        lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 5),
-        onTextLayout = { result -> lineCount = result()?.lineCount ?: 1 },
-        decorator = TextFieldDefaults.decorator(
-            state = state,
-            enabled = true,
-            lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 5),
-            colors = TextFieldDefaults.colors(
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                errorIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent,
-            ),
-            interactionSource = remember { MutableInteractionSource() },
-            outputTransformation = null,
-            placeholder = placeholder,
-            leadingIcon = leadingIcon,
-            trailingIcon = trailingIcon,
+            .background(color = TextFieldDefaults.colors().containerColor(enabled = true, isError = false, focused = true))
+            .animateContentSize(),
+    ) {
+        if (quote != null) {
+            ReplyView(
+                modifier = Modifier.padding(8.dp),
+                reply = quote
+            ) { }
+        }
 
-            contentPadding = PaddingValues(top = 12.dp, start = 8.dp, end = 8.dp, bottom = 8.dp)
+        BasicTextField(
+            modifier = Modifier.fillMaxWidth(),
+            state = state,
+            lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 5),
+            decorator = TextFieldDefaults.decorator(
+                state = state,
+                enabled = true,
+                lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 5),
+                colors = TextFieldDefaults.colors(
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    errorIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+                ),
+                interactionSource = remember { MutableInteractionSource() },
+                outputTransformation = null,
+                placeholder = placeholder,
+                leadingIcon = leadingIcon,
+                trailingIcon = trailingIcon,
+                contentPadding = PaddingValues(top = 12.dp, start = 8.dp, end = 8.dp, bottom = 8.dp)
+            )
         )
-    )
+    }
 }
