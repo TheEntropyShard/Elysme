@@ -65,6 +65,50 @@ public class DcMessage {
 
     }
 
+    public DcMessage(DcMessage other) {
+        this.chatId = other.chatId;
+        this.dimensionsHeight = other.dimensionsHeight;
+        this.dimensionsWidth = other.dimensionsWidth;
+        this.downloadState = other.downloadState;
+        this.duration = other.duration;
+        this.error = other.error;
+        this.file = other.file;
+        this.fileBytes = other.fileBytes;
+        this.fileMime = other.fileMime;
+        this.fileName = other.fileName;
+        this.fromId = other.fromId;
+        this.hasDeviatingTimestamp = other.hasDeviatingTimestamp;
+        this.hasHtml = other.hasHtml;
+        this.hasLocation = other.hasLocation;
+        this.id = other.id;
+        this.infoContactId = other.infoContactId;
+        this.isBot = other.isBot;
+        this.isEdited = other.isEdited;
+        this.isForwarded = other.isForwarded;
+        this.isInfo = other.isInfo;
+        this.isSetupmessage = other.isSetupmessage;
+        this.kind = other.kind;
+        this.originalMsgId = other.originalMsgId;
+        this.overrideSenderName = other.overrideSenderName;
+        this.parentId = other.parentId;
+        this.quote = other.quote;
+        this.reactions = other.reactions;
+        this.receivedTimestamp = other.receivedTimestamp;
+        this.savedMessageId = other.savedMessageId;
+        this.sender = other.sender;
+        this.setupCodeBegin = other.setupCodeBegin;
+        this.showPadlock = other.showPadlock;
+        this.sortTimestamp = other.sortTimestamp;
+        this.state = other.state;
+        this.subject = other.subject;
+        this.systemMessageType = other.systemMessageType;
+        this.text = other.text;
+        this.timestamp = other.timestamp;
+        this.vcardContact = other.vcardContact;
+        this.viewType = other.viewType;
+        this.webxdcHref = other.webxdcHref;
+    }
+
     public boolean hasText() {
         return this.text != null && !this.text.trim().isEmpty();
     }
