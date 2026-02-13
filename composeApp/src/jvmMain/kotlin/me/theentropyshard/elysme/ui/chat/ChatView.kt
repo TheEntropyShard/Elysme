@@ -57,13 +57,19 @@ fun ChatView(
         ChatBody(
             modifier = Modifier.weight(1f),
             messages = messages!!
-        )
+        ) {
+            model.replyTo(it)
+        }
 
         ChatInput(
             modifier = Modifier.fillMaxWidth().padding(
                 start = 8.dp, end = 8.dp, bottom = 8.dp
             ),
             state = text,
+            model = model,
+            quoteColor = model.currentReplyTo?.sender?.color,
+            quoteName = model.currentReplyTo?.sender?.displayName,
+            quoteText = model.currentReplyTo?.text,
             placeholder = { Text(text = "Write a message...") },
             leadingIcon = {
                 IconButton(

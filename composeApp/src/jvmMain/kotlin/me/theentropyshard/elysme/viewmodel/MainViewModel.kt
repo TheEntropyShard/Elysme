@@ -47,6 +47,8 @@ class MainViewModel : ViewModel() {
     var currentChatTitle by mutableStateOf("")
     var currentChatMembers by mutableStateOf(0)
 
+    var currentReplyTo by mutableStateOf<DcMessage?>(null)
+
     val screen = mutableStateOf<Screen>(Screen.MainScreen)
 
     val chats = mutableStateListOf<DcChat>()
@@ -181,6 +183,7 @@ class MainViewModel : ViewModel() {
                 setAccountId(currentAccountId)
                 setChatId(currentChatId)
                 setText(message)
+                setQuotedMessageId(currentReplyTo?.id)
             }
 
             val sentMessageId = rpc.send(sendMessageRequest).result.asInt
@@ -194,5 +197,13 @@ class MainViewModel : ViewModel() {
 
             messages.getOrPut(currentChatId) { mutableStateListOf() } += message
         }
+    }
+
+    fun replyTo(message: DcMessage?) {
+        currentReplyTo = message
+    }
+
+    fun cancelReply() {
+        currentReplyTo = null
     }
 }

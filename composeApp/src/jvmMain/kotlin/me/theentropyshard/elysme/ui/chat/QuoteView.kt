@@ -38,16 +38,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import me.theentropyshard.elysme.deltachat.model.DcQuote
 
 @Composable
-fun ReplyView(
+fun QuoteView(
     modifier: Modifier = Modifier,
-    reply: DcQuote,
+    color: String? = null,
+    name: String? = null,
+    text: String,
     onClick: () -> Unit
 ) {
-    val color = if (reply.authorDisplayColor != null) {
-        Color(0xFF000000 or reply.authorDisplayColor.substring(1).toLong(16))
+    val quoteColor = if (color != null) {
+        Color(0xFF000000 or color.substring(1).toLong(16))
     } else {
         Color.Unspecified
     }
@@ -55,11 +56,11 @@ fun ReplyView(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(color = color.copy(alpha = 0.15f))
+            .background(color = quoteColor.copy(alpha = 0.15f))
             .fillMaxWidth()
             .drawBehind {
                 drawRoundRect(
-                    color = color,
+                    color = quoteColor,
                     size = Size(4.dp.toPx(), size.height),
                 )
             }
@@ -71,15 +72,17 @@ fun ReplyView(
                 .padding(start = 12.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = reply.authorDisplayName,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp,
-                color = color
-            )
+            if (name != null) {
+                Text(
+                    text = name,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp,
+                    color = quoteColor
+                )
+            }
 
             Text(
-                text = reply.text,
+                text = text,
                 fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

@@ -21,24 +21,28 @@ package me.theentropyshard.elysme.ui.chat
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DefaultAlpha
-import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import elysme.composeapp.generated.resources.Res
@@ -49,8 +53,8 @@ import io.kamel.core.utils.File
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import me.theentropyshard.elysme.deltachat.model.DcMessage
-import me.theentropyshard.elysme.deltachat.model.DcQuote
 import me.theentropyshard.elysme.deltachat.model.DcReactions
+import me.theentropyshard.elysme.ui.extensions.noRippleClickable
 import me.theentropyshard.elysme.ui.theme.otherMessageColorDark
 import me.theentropyshard.elysme.ui.theme.otherMessageColorLight
 import me.theentropyshard.elysme.utils.NoMaxSizeImage
@@ -62,6 +66,7 @@ import kotlin.math.min
 fun ChatMessage(
     modifier: Modifier = Modifier,
     message: DcMessage,
+    onReply: (DcMessage) -> Unit,
     onReplyClick: (Int) -> Unit
 ) {
     val displayName = message.sender?.displayName ?: "<unknown user>"
@@ -69,8 +74,24 @@ fun ChatMessage(
     val myself = displayName == "Me"
     val read = message.state == 28
 
+    var hovered by remember { mutableStateOf(false) }
+
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent()
+
+                        hovered = when (event.type) {
+                            PointerEventType.Enter -> true
+                            PointerEventType.Exit -> false
+                            else -> hovered
+                        }
+                    }
+                }
+            }
+            .fillMaxWidth(),
         horizontalArrangement = if (myself) Arrangement.End else Arrangement.Start
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
@@ -127,15 +148,44 @@ fun ChatMessage(
                         }
                     ) {
                         if (!myself) {
-                            Text(
-                                text = displayName,
-                                fontWeight = FontWeight.SemiBold,
-                                color = if (message.sender != null) {
-                                    Color(0xFF000000 or message.sender.color.substring(1).toLong(16))
-                                } else {
-                                    Color.Unspecified
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = displayName,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = if (message.sender != null) {
+                                        Color(0xFF000000 or message.sender.color.substring(1).toLong(16))
+                                    } else {
+                                        Color.Unspecified
+                                    }
+                                )
+
+                                if (hovered) {
+                                    var replyHovered by remember { mutableStateOf(false) }
+
+                                    Spacer(modifier = Modifier.weight(1f))
+
+                                    Text(
+                                        modifier = Modifier
+                                            .pointerInput(Unit) {
+                                                awaitPointerEventScope {
+                                                    while (true) {
+                                                        val event = awaitPointerEvent()
+
+                                                        replyHovered = when (event.type) {
+                                                            PointerEventType.Enter -> true
+                                                            PointerEventType.Exit -> false
+                                                            else -> replyHovered
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            .pointerHoverIcon(icon = PointerIcon.Hand)
+                                            .noRippleClickable { onReply(message) },
+                                        text = "Reply",
+                                        textDecoration = if (replyHovered) TextDecoration.Underline else null,
+                                    )
                                 }
-                            )
+                            }
 
                             Spacer(modifier = Modifier.height(8.dp))
                         }
@@ -145,9 +195,11 @@ fun ChatMessage(
                         val hasAttachment = message.hasAttachment()
 
                         if (hasQuote) {
-                            ReplyView(
+                            QuoteView(
                                 modifier = Modifier.fillMaxWidth(),
-                                reply = message.quote
+                                color = message.quote.authorDisplayColor,
+                                name = message.quote.authorDisplayName,
+                                text = message.quote.text
                             ) { onReplyClick(message.quote.messageId) }
                         }
 

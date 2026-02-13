@@ -21,41 +21,36 @@ package me.theentropyshard.elysme.ui.chat
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.material.minimumInteractiveComponentSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import me.theentropyshard.elysme.deltachat.model.DcQuote
+import me.theentropyshard.elysme.viewmodel.MainViewModel
 
 @Composable
 fun ChatInput(
     modifier: Modifier = Modifier,
+    model: MainViewModel,
     state: TextFieldState,
-    quote: DcQuote? = null,
+    quoteName: String? = null,
+    quoteText: String? = null,
+    quoteColor: String? = null,
     leadingIcon: @Composable () -> Unit = {},
     trailingIcon: @Composable () -> Unit = {},
     placeholder: @Composable () -> Unit = {}
 ) {
-    val shape = if (quote != null) {
+    val shape = if (quoteText != null) {
         RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp, topStart = 16.dp, topEnd = 16.dp)
     } else {
         RoundedCornerShape(24.dp)
@@ -67,11 +62,13 @@ fun ChatInput(
             .background(color = TextFieldDefaults.colors().containerColor(enabled = true, isError = false, focused = true))
             .animateContentSize(),
     ) {
-        if (quote != null) {
-            ReplyView(
+        if (quoteText != null) {
+            QuoteView(
                 modifier = Modifier.padding(8.dp),
-                reply = quote
-            ) { }
+                color = quoteColor,
+                name = quoteName,
+                text = quoteText
+            ) { model.cancelReply() }
         }
 
         BasicTextField(

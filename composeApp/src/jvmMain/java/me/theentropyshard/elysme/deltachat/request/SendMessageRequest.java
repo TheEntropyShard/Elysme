@@ -27,6 +27,7 @@ public class SendMessageRequest extends RpcRequest {
     private int accountId;
     private int chatId;
     private String text;
+    private Integer quotedMessageId;
 
     public SendMessageRequest() {
         super(RpcMethod.send_msg.name());
@@ -39,6 +40,11 @@ public class SendMessageRequest extends RpcRequest {
 
         JsonObject object = new JsonObject();
         object.addProperty("text", this.text);
+
+        if (this.quotedMessageId != null) {
+            object.addProperty("quotedMessageId", this.quotedMessageId);
+        }
+
         this.addParam(object);
     }
 
@@ -52,5 +58,9 @@ public class SendMessageRequest extends RpcRequest {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public void setQuotedMessageId(Integer quotedMessageId) {
+        this.quotedMessageId = quotedMessageId;
     }
 }

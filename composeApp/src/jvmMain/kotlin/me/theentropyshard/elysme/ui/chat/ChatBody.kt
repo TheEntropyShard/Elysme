@@ -47,7 +47,8 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun ChatBody(
     modifier: Modifier = Modifier,
-    messages: List<DcMessage>
+    messages: List<DcMessage>,
+    onReply: (DcMessage) -> Unit,
 ) {
     val state = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -80,7 +81,7 @@ fun ChatBody(
                 items(count = messages.size, key = { messages[messages.size - 1 - it].id }) {
                     val message = messages[messages.size - 1 - it]
 
-                    ChatMessage(message = message) { id ->
+                    ChatMessage(message = message, onReply = onReply) { id ->
                         scope.launch {
                             val index = messages.size - messages.indexOfFirst { msg -> msg.id == id } - 1
 
