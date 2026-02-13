@@ -120,7 +120,7 @@ class MainViewModel : ViewModel() {
                     val msgId = event.get("msgId").asInt
 
                     viewModelScope.launch {
-                        val messageList = messages.getOrPut(currentChatId) { mutableStateListOf() }
+                        val messageList = messages.getOrPut(chatId) { mutableStateListOf() }
                         val index = messageList.indexOfFirst { it.id == msgId }
 
                         if (index != -1) {
