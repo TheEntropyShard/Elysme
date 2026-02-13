@@ -124,7 +124,7 @@ class MainViewModel : ViewModel() {
                         val index = messageList.indexOfFirst { it.id == msgId }
 
                         if (index != -1) {
-                            messageList[index] = messageList[index].also { it.state = 28 }
+                            messageList[index] = DcMessage(messageList[index].also { it.state = 28 })
                         }
                     }
                 }
