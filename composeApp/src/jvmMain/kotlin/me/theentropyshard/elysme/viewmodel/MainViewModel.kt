@@ -18,16 +18,13 @@
 
 package me.theentropyshard.elysme.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.theentropyshard.elysme.deltachat.model.DcChat
@@ -35,9 +32,6 @@ import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.request.*
 import me.theentropyshard.elysme.deltachat.rpc.Rpc
 import me.theentropyshard.elysme.deltachat.rpc.RpcMethod
-import java.util.*
-import kotlin.collections.plus
-import kotlin.collections.plusAssign
 
 sealed class Screen {
     object ImportBackupScreen : Screen()
@@ -168,18 +162,14 @@ class MainViewModel : ViewModel() {
             }
             val messagesResponse = rpc.send(messagesRequest)
 
-            val obj = messagesResponse.result.asJsonObject
-            val sorted = TreeMap<Int, DcMessage>()
-            val gson = Gson()
-            for (entry in obj.entrySet()) {
-                sorted[entry.key.toInt()] = gson.fromJson(entry.value.asJsonObject, DcMessage::class.java)
-            }
+            val sortedMessages = mutableListOf<DcMessage>()
 
-            val sortedMessages = sorted.values
+            val asMap = Gson().fromJson(messagesResponse.result, object : TypeToken<Map<String, DcMessage>>() {})
+            messageIds.forEach { id -> asMap[id.toString()]?.let { sortedMessages += it } }
 
             viewModelScope.launch {
-                messages.getOrPut(chat.id) { mutableStateListOf() }.clear()
                 messages.getOrPut(chat.id) { mutableStateListOf() }.addAll(sortedMessages)
+
                 currentChatId = chat.id
             }
         }
