@@ -22,12 +22,16 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +54,18 @@ fun ChatBody(
 
     LaunchedEffect(messages.size) {
         state.animateScrollToItem(0)
+    }
+
+    val reachedTop by remember {
+        derivedStateOf {
+            state.reachedTop()
+        }
+    }
+
+    LaunchedEffect(reachedTop) {
+        if (reachedTop && messages.isNotEmpty()) {
+            println("reached top")
+        }
     }
 
     Box(modifier = modifier) {
@@ -109,5 +125,19 @@ fun ChatBody(
                 )
             }
         }
+    }
+}
+
+fun LazyListState.reachedTop(): Boolean {
+    return if (layoutInfo.totalItemsCount == 0) {
+        false
+    } else {
+        val lastVisibleItem = layoutInfo.visibleItemsInfo.last()
+        val viewportHeight = layoutInfo.viewportEndOffset + layoutInfo.viewportStartOffset
+
+        // Check if the last visible item is the last item in the list and fully visible
+        // This indicates that the user has scrolled to the top
+        (lastVisibleItem.index + 1 == layoutInfo.totalItemsCount &&
+                lastVisibleItem.offset - lastVisibleItem.size <= viewportHeight)
     }
 }
