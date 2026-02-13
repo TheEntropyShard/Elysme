@@ -224,54 +224,6 @@ fun ChatMessage(
 }
 
 @Composable
-private fun ReplyView(
-    modifier: Modifier = Modifier,
-    reply: DcQuote,
-    onClick: () -> Unit
-) {
-    val color = if (reply.authorDisplayColor != null) {
-        Color(0xFF000000 or reply.authorDisplayColor.substring(1).toLong(16))
-    } else {
-        Color.Unspecified
-    }
-
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(color = color.copy(alpha = 0.15f))
-            .fillMaxWidth()
-            .drawBehind {
-                drawRoundRect(
-                    color = color,
-                    size = Size(4.dp.toPx(), size.height),
-                )
-            }
-            .clickable { onClick() }
-    ) {
-        Column(
-            modifier = Modifier
-                .wrapContentSize()
-                .padding(start = 12.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = reply.authorDisplayName,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp,
-                color = color
-            )
-
-            Text(
-                text = reply.text,
-                fontSize = 14.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-}
-
-@Composable
 private fun ImageAttachment(
     modifier: Modifier = Modifier,
     scale: Float,
