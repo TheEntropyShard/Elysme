@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import elysme.composeapp.generated.resources.Res
+import elysme.composeapp.generated.resources.edit24dp
 import elysme.composeapp.generated.resources.read24dp
 import elysme.composeapp.generated.resources.unread24dp
 import io.kamel.core.utils.File
@@ -192,6 +193,14 @@ fun ChatMessage(
                                 horizontalArrangement = Arrangement.End,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
+                                if (message.isIsEdited) {
+                                    Icon(
+                                        modifier = Modifier.size(16.dp).padding(top = 2.dp, end = 2.dp),
+                                        painter = painterResource(Res.drawable.edit24dp),
+                                        contentDescription = "Message was edited",
+                                    )
+                                }
+
                                 Text(
                                     text = "14:48",
                                     fontSize = 12.sp
