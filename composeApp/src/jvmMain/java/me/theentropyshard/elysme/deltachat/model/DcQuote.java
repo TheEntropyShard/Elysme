@@ -38,39 +38,79 @@ public class DcQuote {
         return this.authorDisplayColor;
     }
 
+    public void setAuthorDisplayColor(String authorDisplayColor) {
+        this.authorDisplayColor = authorDisplayColor;
+    }
+
     public String getAuthorDisplayName() {
         return this.authorDisplayName;
+    }
+
+    public void setAuthorDisplayName(String authorDisplayName) {
+        this.authorDisplayName = authorDisplayName;
     }
 
     public int getChatId() {
         return this.chatId;
     }
 
+    public void setChatId(int chatId) {
+        this.chatId = chatId;
+    }
+
     public Object getImage() {
         return this.image;
     }
 
-    public boolean isIsForwarded() {
+    public void setImage(Object image) {
+        this.image = image;
+    }
+
+    public boolean isForwarded() {
         return this.isForwarded;
+    }
+
+    public void setForwarded(boolean forwarded) {
+        this.isForwarded = forwarded;
     }
 
     public String getKind() {
         return this.kind;
     }
 
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
+
     public int getMessageId() {
         return this.messageId;
+    }
+
+    public void setMessageId(int messageId) {
+        this.messageId = messageId;
     }
 
     public Object getOverrideSenderName() {
         return this.overrideSenderName;
     }
 
+    public void setOverrideSenderName(Object overrideSenderName) {
+        this.overrideSenderName = overrideSenderName;
+    }
+
     public String getText() {
         return this.text;
     }
 
+    public void setText(String text) {
+        this.text = text;
+    }
+
     public String getViewType() {
         return this.viewType;
+    }
+
+    public void setViewType(String viewType) {
+        this.viewType = viewType;
     }
 }
