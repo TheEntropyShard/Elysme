@@ -166,8 +166,11 @@ class MainViewModel : ViewModel() {
 
             val sortedMessages = mutableListOf<DcMessage>()
 
+            val specialMessageIdLast = 9
+
             val asMap = Gson().fromJson(messagesResponse.result, object : TypeToken<Map<String, DcMessage>>() {})
-            messageIds.forEach { id -> asMap[id.toString()]?.let { sortedMessages += it } }
+            messageIds.filterNot { id -> id <= specialMessageIdLast }
+                .forEach { id -> asMap[id.toString()]?.let { sortedMessages += it } }
 
             viewModelScope.launch {
                 messages.getOrPut(chat.id) { mutableStateListOf() }.addAll(sortedMessages)
