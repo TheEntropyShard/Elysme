@@ -41,6 +41,8 @@ public class DcChat {
     private String profileImage;
     private boolean selfInGroup;
     private boolean wasSeenRecently;
+    private String lastMessageType;
+    private int lastMessageId;
 
     public DcChat() {
     
@@ -132,5 +134,13 @@ public class DcChat {
 
     public boolean isWasSeenRecently() {
         return this.wasSeenRecently;
+    }
+
+    public String getLastMessageType() {
+        return this.lastMessageType;
+    }
+
+    public int getLastMessageId() {
+        return this.lastMessageId;
     }
 }
