@@ -218,7 +218,7 @@ fun ChatMessage(
                                 val newHeight = (message.dimensionsHeight * scale).dp
 
                                 ImageAttachment(
-                                    modifier = Modifier.size(newWidth, newHeight),
+                                    modifier = Modifier.size(newWidth, newHeight).align(Alignment.CenterHorizontally),
                                     scale = max(scale, 1.0f),
                                     name = message.fileName,
                                     filePath = message.file,
