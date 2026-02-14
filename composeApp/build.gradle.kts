@@ -22,6 +22,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation("com.google.code.gson:gson:2.11.0")
             implementation("media.kamel:kamel-image-default:1.0.6")
+            implementation("org.jetbrains.compose.components:components-splitpane-desktop:1.10.1")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

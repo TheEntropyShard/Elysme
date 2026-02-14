@@ -21,19 +21,14 @@ package me.theentropyshard.elysme
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -43,7 +38,12 @@ import me.theentropyshard.elysme.ui.chat.ChatView
 import me.theentropyshard.elysme.ui.theme.ElysmeTheme
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import me.theentropyshard.elysme.viewmodel.Screen
+import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
+import org.jetbrains.compose.splitpane.HorizontalSplitPane
+import org.jetbrains.compose.splitpane.rememberSplitPaneState
+import java.awt.Cursor
 
+@OptIn(ExperimentalSplitPaneApi::class)
 @Composable
 @Preview
 fun App() {
@@ -67,20 +67,46 @@ fun App() {
                         model.importBackup(path)
                     }
 
-                    is Screen.MainScreen -> Row {
-                        ChatList(
-                            modifier = Modifier.width(380.dp),
-                            model = model,
-                        ) { chat ->
-                            model.showChat(chat)
+                    is Screen.MainScreen -> HorizontalSplitPane(
+                        modifier = Modifier.fillMaxSize(),
+                        splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.25f)
+                    ) {
+                        first(minSize = 256.dp) {
+                            ChatList(
+                                modifier = Modifier.fillMaxHeight(),
+                                model = model,
+                            ) { chat ->
+                                model.showChat(chat)
+                            }
                         }
 
-                        if (model.currentChatId != -1) {
+                        second(minSize = 512.dp) {
                             ChatView(
                                 modifier = Modifier.fillMaxSize(),
                                 model = model
                             ) { text ->
                                 model.sendMessage(text)
+                            }
+                        }
+
+                        splitter {
+                            visiblePart {
+                                Box(
+                                    modifier = Modifier
+                                        .width(1.dp)
+                                        .background(color = MaterialTheme.colorScheme.surfaceContainer)
+                                        .fillMaxHeight()
+                                )
+                            }
+
+                            handle {
+                                Box(
+                                    Modifier
+                                        .markAsHandle()
+                                        .cursorForHorizontalResize()
+                                        .width(3.dp)
+                                        .fillMaxHeight()
+                                )
                             }
                         }
                     }
@@ -89,3 +115,6 @@ fun App() {
         }
     }
 }
+
+private fun Modifier.cursorForHorizontalResize(): Modifier =
+    pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))

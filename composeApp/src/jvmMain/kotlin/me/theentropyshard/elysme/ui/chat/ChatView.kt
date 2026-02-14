@@ -18,22 +18,23 @@
 
 package me.theentropyshard.elysme.ui.chat
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import elysme.composeapp.generated.resources.Res
 import elysme.composeapp.generated.resources.attach24dp
 import elysme.composeapp.generated.resources.send24dp
-import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
 
@@ -45,63 +46,92 @@ fun ChatView(
 ) {
     val text = rememberTextFieldState()
 
-    val messages = model.messages[model.currentChatId]
-
     Column(modifier = modifier) {
-        ChatHeader(
-            modifier = Modifier.fillMaxWidth().padding(start = 8.dp),
-            title = model.currentChatTitle,
-            memberCount = model.currentChatMembers
-        )
+        if (model.currentChatId == -1) {
+            NoChatView(modifier = Modifier.fillMaxSize())
+        } else {
+            Column {
+                val messages = model.messages[model.currentChatId]
 
-        ChatBody(
-            modifier = Modifier.weight(1f),
-            messages = messages!!
-        ) {
-            model.replyTo(it)
-        }
+                ChatHeader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp),
+                    title = model.currentChatTitle,
+                    memberCount = model.currentChatMembers
+                )
 
-        ChatInput(
-            modifier = Modifier.fillMaxWidth().padding(
-                start = 8.dp, end = 8.dp, bottom = 8.dp
-            ),
-            state = text,
-            model = model,
-            quoteColor = model.currentReplyTo?.sender?.color,
-            quoteName = model.currentReplyTo?.sender?.displayName,
-            quoteText = model.currentReplyTo?.text,
-            placeholder = { Text(text = "Write a message...") },
-            leadingIcon = {
-                IconButton(
-                    onClick = {
-
-                    }
+                ChatBody(
+                    modifier = Modifier.weight(1f),
+                    messages = messages!!
                 ) {
-                    Icon(
-                        modifier = Modifier.graphicsLayer { rotationZ = 45.0f },
-                        painter = painterResource(Res.drawable.attach24dp),
-                        contentDescription = "",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                    model.replyTo(it)
                 }
-            },
-            trailingIcon = {
-                IconButton(
-                    onClick = {
-                        if (text.text.trim().isNotBlank()) {
-                            onSendMessage(text.text.toString())
+
+                ChatInput(
+                    modifier = Modifier.fillMaxWidth().padding(
+                        start = 8.dp, end = 8.dp, bottom = 8.dp
+                    ),
+                    state = text,
+                    model = model,
+                    quoteColor = model.currentReplyTo?.sender?.color,
+                    quoteName = model.currentReplyTo?.sender?.displayName,
+                    quoteText = model.currentReplyTo?.text,
+                    placeholder = { Text(text = "Write a message...") },
+                    leadingIcon = {
+                        IconButton(
+                            onClick = {
+
+                            }
+                        ) {
+                            Icon(
+                                modifier = Modifier.graphicsLayer { rotationZ = 45.0f },
+                                painter = painterResource(Res.drawable.attach24dp),
+                                contentDescription = "",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
                         }
+                    },
+                    trailingIcon = {
+                        IconButton(
+                            onClick = {
+                                if (text.text.trim().isNotBlank()) {
+                                    onSendMessage(text.text.toString())
+                                }
 
-                        text.edit { delete(start = 0, end = length) }
+                                text.edit { delete(start = 0, end = length) }
+                            }
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.send24dp),
+                                contentDescription = "",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
-                ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.send24dp),
-                        contentDescription = "",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun NoChatView(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.background(color = Color.Transparent),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            modifier = Modifier
+                .clip(RoundedCornerShape(50.dp))
+                .background(color = Color.Black.copy(alpha = 0.75f))
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+            text = "Select a chat to start messaging",
+            fontWeight = FontWeight.SemiBold,
+            color = Color.LightGray,
         )
     }
 }
