@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import me.theentropyshard.elysme.ChooseFileDialog
+import me.theentropyshard.elysme.ui.theme.Fonts
 
 @Composable
 fun ImportBackupView(
@@ -46,7 +47,10 @@ fun ImportBackupView(
         Button(
             onClick = { dialogVisible = true },
         ) {
-            Text(text = "Click to import a backup")
+            Text(
+                text = "Click to import a backup",
+                fontFamily = Fonts.googleSans(),
+            )
         }
     }
 

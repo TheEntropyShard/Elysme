@@ -75,7 +75,7 @@ fun ChatBody(
                 modifier = Modifier.weight(1f),
                 state = state,
                 reverseLayout = true,
-                contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
             ) {
                 items(count = messages.size, key = { messages[messages.size - 1 - it].id }) {

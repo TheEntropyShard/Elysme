@@ -94,7 +94,7 @@ fun App() {
                                 Box(
                                     modifier = Modifier
                                         .width(1.dp)
-                                        .background(color = MaterialTheme.colorScheme.surfaceContainer)
+                                        .background(color = MaterialTheme.colorScheme.secondaryContainer)
                                         .fillMaxHeight()
                                 )
                             }

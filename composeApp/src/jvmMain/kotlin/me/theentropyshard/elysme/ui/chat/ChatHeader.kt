@@ -21,15 +21,17 @@ package me.theentropyshard.elysme.ui.chat
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import elysme.composeapp.generated.resources.Res
-import elysme.composeapp.generated.resources.menu24dp
+import elysme.composeapp.generated.resources.morevert24dp
+import elysme.composeapp.generated.resources.search24dp
+import me.theentropyshard.elysme.ui.theme.Fonts
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -39,16 +41,20 @@ fun ChatHeader(
     memberCount: Int,
 ) {
     Row(
-        modifier = modifier,
+        modifier = modifier.padding(2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
             Text(
                 text = title,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Medium,
+                fontFamily = Fonts.googleSans(),
             )
 
-            Text(text = "$memberCount members")
+            Text(
+                text = "$memberCount members",
+                fontFamily = Fonts.googleSans(),
+            )
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -57,7 +63,16 @@ fun ChatHeader(
             onClick = {}
         ) {
             Icon(
-                painter = painterResource(Res.drawable.menu24dp),
+                painter = painterResource(Res.drawable.search24dp),
+                contentDescription = "Search in $title"
+            )
+        }
+
+        IconButton(
+            onClick = {}
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.morevert24dp),
                 contentDescription = "Open menu for chat $title"
             )
         }

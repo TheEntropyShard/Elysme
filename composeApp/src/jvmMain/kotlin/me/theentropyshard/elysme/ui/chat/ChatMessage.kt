@@ -18,7 +18,6 @@
 
 package me.theentropyshard.elysme.ui.chat
 
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -31,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -51,8 +49,7 @@ import io.kamel.image.asyncPainterResource
 import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.model.DcReactions
 import me.theentropyshard.elysme.ui.extensions.noRippleClickable
-import me.theentropyshard.elysme.ui.theme.otherMessageColorDark
-import me.theentropyshard.elysme.ui.theme.otherMessageColorLight
+import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.utils.NoMaxSizeImage
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.max
@@ -97,14 +94,6 @@ fun ChatMessage(
                         modifier = Modifier.size(32.dp).clip(CircleShape),
                         resource = { asyncPainterResource(data = File(profileImage)) },
                         contentDescription = "Avatar of user $displayName",
-                        alignment = Alignment.Center,
-                        contentScale = ContentScale.Fit,
-                        alpha = DefaultAlpha,
-                        colorFilter = null,
-                        onLoading = null,
-                        onFailure = null,
-                        contentAlignment = Alignment.Center,
-                        animationSpec = tween(),
                     )
                 } else {
                     Surface(
@@ -126,13 +115,9 @@ fun ChatMessage(
                         .width(IntrinsicSize.Max),
                     colors = CardDefaults.cardColors(
                         containerColor = if (myself) {
-                            MaterialTheme.colorScheme.secondaryContainer
+                            MaterialTheme.colorScheme.primaryContainer
                         } else {
-                            if (false) {
-                                otherMessageColorDark
-                            } else {
-                                otherMessageColorLight
-                            }
+                            MaterialTheme.colorScheme.secondaryContainer
                         }
                     )
                 ) {
@@ -147,7 +132,8 @@ fun ChatMessage(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = displayName,
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = Fonts.googleSans(),
+                                    fontWeight = FontWeight.Medium,
                                     color = if (message.sender != null) {
                                         Color(0xFF000000 or message.sender.color.substring(1).toLong(16))
                                     } else {
@@ -179,6 +165,7 @@ fun ChatMessage(
                                             .noRippleClickable { onReply(message) },
                                         text = "Reply",
                                         textDecoration = if (replyHovered) TextDecoration.Underline else null,
+                                        fontFamily = Fonts.googleSans()
                                     )
                                 }
                             }
@@ -227,7 +214,10 @@ fun ChatMessage(
                         }
 
                         if (hasText) {
-                            Text(text = message.text)
+                            Text(
+                                text = message.text,
+                                fontFamily = Fonts.googleSans()
+                            )
                         }
 
                         Row(
@@ -251,6 +241,7 @@ fun ChatMessage(
 
                                 Text(
                                     text = "14:48",
+                                    fontFamily = Fonts.googleSans(),
                                     fontSize = 12.sp
                                 )
 

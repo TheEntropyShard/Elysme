@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import me.theentropyshard.elysme.ui.theme.Fonts
 
 @Composable
 fun QuoteView(
@@ -75,8 +76,9 @@ fun QuoteView(
             if (name != null) {
                 Text(
                     text = name,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Medium,
                     fontSize = 14.sp,
+                    fontFamily = Fonts.googleSans(),
                     color = quoteColor
                 )
             }
@@ -84,6 +86,7 @@ fun QuoteView(
             Text(
                 text = text,
                 fontSize = 14.sp,
+                fontFamily = Fonts.googleSans(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

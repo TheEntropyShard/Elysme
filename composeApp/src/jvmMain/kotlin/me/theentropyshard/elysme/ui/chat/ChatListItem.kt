@@ -18,28 +18,20 @@
 
 package me.theentropyshard.elysme.ui.chat
 
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.DefaultAlpha
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.kamel.core.utils.File
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import me.theentropyshard.elysme.ui.theme.Fonts
 
 @Composable
 fun ChatListItem(
@@ -60,14 +52,6 @@ fun ChatListItem(
                 modifier = Modifier.size(48.dp).clip(CircleShape),
                 resource = { asyncPainterResource(data = File(profileImagePath)) },
                 contentDescription = "Chat profile image - $chatName",
-                alignment = Alignment.Center,
-                contentScale = ContentScale.Fit,
-                alpha = DefaultAlpha,
-                colorFilter = null,
-                onLoading = null,
-                onFailure = null,
-                contentAlignment = Alignment.Center,
-                animationSpec = tween(),
             )
         } else {
             Surface(
@@ -85,16 +69,21 @@ fun ChatListItem(
             Row {
                 Text(
                     text = chatName,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = Fonts.googleSans(),
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Text(text = messageTime)
+                Text(
+                    text = messageTime,
+                    fontFamily = Fonts.googleSans(),
+                )
             }
 
             Text(
                 text = lastEventText,
+                fontFamily = Fonts.googleSans(),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
             )

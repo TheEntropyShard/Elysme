@@ -29,14 +29,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import elysme.composeapp.generated.resources.Res
-import elysme.composeapp.generated.resources.attach24dp
-import elysme.composeapp.generated.resources.send24dp
+import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
-import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun ChatView(
@@ -61,6 +57,13 @@ fun ChatView(
                     memberCount = model.currentChatMembers
                 )
 
+                Box(
+                    modifier = Modifier
+                        .background(color = MaterialTheme.colorScheme.secondaryContainer)
+                        .fillMaxWidth()
+                        .height(1.dp),
+                )
+
                 ChatBody(
                     modifier = Modifier.weight(1f),
                     messages = messages!!
@@ -68,46 +71,24 @@ fun ChatView(
                     model.replyTo(it)
                 }
 
+                Box(
+                    modifier = Modifier
+                        .background(color = MaterialTheme.colorScheme.secondaryContainer)
+                        .fillMaxWidth()
+                        .height(1.dp),
+                )
+
                 ChatInput(
-                    modifier = Modifier.fillMaxWidth().padding(
-                        start = 8.dp, end = 8.dp, bottom = 8.dp
-                    ),
+                    modifier = Modifier.fillMaxWidth(),
                     state = text,
                     model = model,
-                    quoteColor = model.currentReplyTo?.sender?.color,
-                    quoteName = model.currentReplyTo?.sender?.displayName,
-                    quoteText = model.currentReplyTo?.text,
-                    placeholder = { Text(text = "Write a message...") },
-                    leadingIcon = {
-                        IconButton(
-                            onClick = {
-
-                            }
-                        ) {
-                            Icon(
-                                modifier = Modifier.graphicsLayer { rotationZ = 45.0f },
-                                painter = painterResource(Res.drawable.attach24dp),
-                                contentDescription = "",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
+                    onAttachClick = {},
+                    onSendClick = {
+                        if (text.text.trim().isNotBlank()) {
+                            onSendMessage(text.text.toString())
                         }
-                    },
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {
-                                if (text.text.trim().isNotBlank()) {
-                                    onSendMessage(text.text.toString())
-                                }
 
-                                text.edit { delete(start = 0, end = length) }
-                            }
-                        ) {
-                            Icon(
-                                painter = painterResource(Res.drawable.send24dp),
-                                contentDescription = "",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
+                        text.edit { delete(start = 0, end = length) }
                     }
                 )
             }
@@ -130,7 +111,8 @@ private fun NoChatView(
                 .background(color = Color.Black.copy(alpha = 0.75f))
                 .padding(horizontal = 12.dp, vertical = 4.dp),
             text = "Select a chat to start messaging",
-            fontWeight = FontWeight.SemiBold,
+            fontWeight = FontWeight.Medium,
+            fontFamily = Fonts.googleSans(),
             color = Color.LightGray,
         )
     }
