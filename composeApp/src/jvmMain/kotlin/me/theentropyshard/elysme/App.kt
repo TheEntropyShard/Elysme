@@ -46,66 +46,65 @@ import java.awt.Cursor
 @OptIn(ExperimentalSplitPaneApi::class)
 @Composable
 @Preview
-fun App() {
+fun App(modifier: Modifier = Modifier) {
     val model = viewModel { MainViewModel() }
+
     var currentScreen by model.screen
 
-    ElysmeTheme() {
-        Surface(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
-                .safeContentPadding()
-                .fillMaxSize(),
-        ) {
-            Crossfade(
-                targetState = currentScreen,
-                animationSpec = tween(durationMillis = 1000),
-                label = "Screen Crossfade"
-            ) { screen ->
-                when (screen) {
-                    is Screen.ImportBackupScreen -> ImportBackupView { path ->
-                        model.importBackup(path)
+    Surface(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.background)
+            .safeContentPadding()
+            .fillMaxSize(),
+    ) {
+        Crossfade(
+            targetState = currentScreen,
+            animationSpec = tween(durationMillis = 1000),
+            label = "Screen Crossfade"
+        ) { screen ->
+            when (screen) {
+                is Screen.ImportBackupScreen -> ImportBackupView { path ->
+                    model.importBackup(path)
+                }
+
+                is Screen.MainScreen -> HorizontalSplitPane(
+                    modifier = Modifier.fillMaxSize(),
+                    splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.25f)
+                ) {
+                    first(minSize = 256.dp) {
+                        ChatList(
+                            modifier = Modifier.fillMaxHeight(),
+                            model = model,
+                        ) { chat ->
+                            model.showChat(chat)
+                        }
                     }
 
-                    is Screen.MainScreen -> HorizontalSplitPane(
-                        modifier = Modifier.fillMaxSize(),
-                        splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.25f)
-                    ) {
-                        first(minSize = 256.dp) {
-                            ChatList(
-                                modifier = Modifier.fillMaxHeight(),
-                                model = model,
-                            ) { chat ->
-                                model.showChat(chat)
-                            }
-                        }
+                    second(minSize = 512.dp) {
+                        ChatView(
+                            modifier = Modifier.fillMaxSize(),
+                            model = model
+                        )
+                    }
 
-                        second(minSize = 512.dp) {
-                            ChatView(
-                                modifier = Modifier.fillMaxSize(),
-                                model = model
+                    splitter {
+                        visiblePart {
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .background(color = MaterialTheme.colorScheme.secondaryContainer)
+                                    .fillMaxHeight()
                             )
                         }
 
-                        splitter {
-                            visiblePart {
-                                Box(
-                                    modifier = Modifier
-                                        .width(1.dp)
-                                        .background(color = MaterialTheme.colorScheme.secondaryContainer)
-                                        .fillMaxHeight()
-                                )
-                            }
-
-                            handle {
-                                Box(
-                                    Modifier
-                                        .markAsHandle()
-                                        .cursorForHorizontalResize()
-                                        .width(3.dp)
-                                        .fillMaxHeight()
-                                )
-                            }
+                        handle {
+                            Box(
+                                Modifier
+                                    .markAsHandle()
+                                    .cursorForHorizontalResize()
+                                    .width(3.dp)
+                                    .fillMaxHeight()
+                            )
                         }
                     }
                 }
