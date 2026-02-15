@@ -38,11 +38,11 @@ fun ChatView(
     model: MainViewModel,
 ) {
     Column(modifier = modifier) {
-        if (model.currentChatId == -1) {
+        if (model.currentChat == null) {
             NoChatView(modifier = Modifier.fillMaxSize())
         } else {
             Column {
-                val messages = model.messages[model.currentChatId]
+                val messages = model.messages[model.currentChat!!.id]
 
                 ChatHeader(
                     modifier = Modifier
@@ -66,18 +66,20 @@ fun ChatView(
                     model.replyTo(it)
                 }
 
-                Box(
-                    modifier = Modifier
-                        .background(color = MaterialTheme.colorScheme.secondaryContainer)
-                        .fillMaxWidth()
-                        .height(1.dp),
-                )
+                if (model.currentChat!!.isCanSend) {
+                    Box(
+                        modifier = Modifier
+                            .background(color = MaterialTheme.colorScheme.secondaryContainer)
+                            .fillMaxWidth()
+                            .height(1.dp),
+                    )
 
-                ChatInput(
-                    modifier = Modifier.fillMaxWidth(),
-                    model = model,
-                    onAttachClick = {},
-                )
+                    ChatInput(
+                        modifier = Modifier.fillMaxWidth(),
+                        model = model,
+                        onAttachClick = {},
+                    )
+                }
             }
         }
     }

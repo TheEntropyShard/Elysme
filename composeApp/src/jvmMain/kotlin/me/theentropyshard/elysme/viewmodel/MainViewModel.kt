@@ -42,7 +42,7 @@ class MainViewModel : ViewModel() {
     private val rpc = Rpc(System.getenv("RPC_SERVER_PATH"), System.getenv("DC_ACCOUNTS_PATH"))
 
     private var currentAccountId = 0
-    var currentChatId by mutableStateOf(-1)
+    var currentChat by mutableStateOf<DcChat?>(null)
 
     var currentChatTitle by mutableStateOf("")
     var currentChatMembers by mutableStateOf(0)
@@ -143,7 +143,7 @@ class MainViewModel : ViewModel() {
         currentChatMembers = chat.contactIds.size
 
         if (messages.containsKey(chat.id)) {
-            currentChatId = chat.id
+            currentChat = chat
 
             return
         }
@@ -175,7 +175,7 @@ class MainViewModel : ViewModel() {
             viewModelScope.launch {
                 messages.getOrPut(chat.id) { mutableStateListOf() }.addAll(sortedMessages)
 
-                currentChatId = chat.id
+                currentChat = chat
             }
         }
     }
@@ -184,7 +184,7 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val sendMessageRequest = SendMessageRequest().apply {
                 setAccountId(currentAccountId)
-                setChatId(currentChatId)
+                setChatId(currentChat!!.id)
                 setText(message)
                 setQuotedMessageId(currentReplyTo?.id)
             }
@@ -200,7 +200,7 @@ class MainViewModel : ViewModel() {
 
             val message = Gson().fromJson(rpc.send(getMessageRequest).result.asJsonObject, DcMessage::class.java)
 
-            messages.getOrPut(currentChatId) { mutableStateListOf() } += message
+            messages.getOrPut(currentChat!!.id) { mutableStateListOf() } += message
         }
     }
 
