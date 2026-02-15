@@ -56,7 +56,7 @@ public class DcMessage {
     private String subject;
     private String systemMessageType;
     private String text;
-    private int timestamp;
+    private long timestamp;
     private Object vcardContact;
     private String viewType;
     private Object webxdcHref;
@@ -273,7 +273,7 @@ public class DcMessage {
         return this.text;
     }
 
-    public int getTimestamp() {
+    public long getTimestamp() {
         return this.timestamp;
     }
 

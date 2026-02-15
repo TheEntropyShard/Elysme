@@ -19,7 +19,6 @@
 package me.theentropyshard.elysme.ui.chat
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,13 +27,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -50,10 +47,10 @@ import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.model.DcReactions
 import me.theentropyshard.elysme.ui.extensions.noRippleClickable
 import me.theentropyshard.elysme.ui.theme.Fonts
-import me.theentropyshard.elysme.utils.NoMaxSizeImage
 import org.jetbrains.compose.resources.painterResource
-import kotlin.math.max
-import kotlin.math.min
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun ChatMessage(
@@ -226,7 +223,8 @@ fun ChatMessage(
                                 }
 
                                 Text(
-                                    text = "14:48",
+                                    text = FORMATTER.format(java.time.Instant.ofEpochSecond(message.timestamp)
+                                        .atZone(ZoneId.systemDefault())),
                                     fontFamily = Fonts.googleSans(),
                                     fontSize = 12.sp
                                 )
@@ -247,6 +245,8 @@ fun ChatMessage(
         }
     }
 }
+
+val FORMATTER = DateTimeFormatter.ofPattern("HH:mm")
 
 private fun transformReactions(reactions: Map<String, List<String>>): Map<String, List<String>> {
     return mapOf()
