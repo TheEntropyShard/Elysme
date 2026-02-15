@@ -189,6 +189,8 @@ class MainViewModel : ViewModel() {
                 setQuotedMessageId(currentReplyTo?.id)
             }
 
+            viewModelScope.launch { cancelReply() }
+
             val sentMessageId = rpc.send(sendMessageRequest).result.asInt
 
             val getMessageRequest = GetSingleMessageRequest().apply {

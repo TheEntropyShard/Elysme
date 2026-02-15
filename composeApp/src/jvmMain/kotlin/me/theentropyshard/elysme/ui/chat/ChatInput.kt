@@ -28,6 +28,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.delete
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -49,16 +51,18 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun ChatInput(
     modifier: Modifier = Modifier,
-    state: TextFieldState,
     model: MainViewModel,
     onAttachClick: () -> Unit,
-    onSendClick: () -> Unit
 ) {
+    val state = rememberTextFieldState()
     val requester = remember { FocusRequester() }
 
     val sendMessage: () -> Unit = {
-        onSendClick()
+        if (state.text.trim().isNotBlank()) {
+            model.sendMessage(state.text.toString())
+        }
 
+        state.edit { delete(start = 0, end = length) }
         requester.requestFocus()
     }
 

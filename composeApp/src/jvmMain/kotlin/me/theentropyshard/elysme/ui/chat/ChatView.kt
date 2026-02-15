@@ -21,8 +21,6 @@ package me.theentropyshard.elysme.ui.chat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.input.delete
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,10 +36,7 @@ import me.theentropyshard.elysme.viewmodel.MainViewModel
 fun ChatView(
     modifier: Modifier = Modifier,
     model: MainViewModel,
-    onSendMessage: (String) -> Unit
 ) {
-    val text = rememberTextFieldState()
-
     Column(modifier = modifier) {
         if (model.currentChatId == -1) {
             NoChatView(modifier = Modifier.fillMaxSize())
@@ -80,16 +75,8 @@ fun ChatView(
 
                 ChatInput(
                     modifier = Modifier.fillMaxWidth(),
-                    state = text,
                     model = model,
                     onAttachClick = {},
-                    onSendClick = {
-                        if (text.text.trim().isNotBlank()) {
-                            onSendMessage(text.text.toString())
-                        }
-
-                        text.edit { delete(start = 0, end = length) }
-                    }
                 )
             }
         }

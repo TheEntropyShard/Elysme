@@ -84,9 +84,7 @@ fun App() {
                             ChatView(
                                 modifier = Modifier.fillMaxSize(),
                                 model = model
-                            ) { text ->
-                                model.sendMessage(text)
-                            }
+                            )
                         }
 
                         splitter {
