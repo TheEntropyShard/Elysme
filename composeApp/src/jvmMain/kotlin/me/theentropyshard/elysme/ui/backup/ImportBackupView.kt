@@ -29,7 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import me.theentropyshard.elysme.ChooseFileDialog
+import me.theentropyshard.elysme.ui.ChooseFileDialog
 import me.theentropyshard.elysme.ui.theme.Fonts
 
 @Composable
