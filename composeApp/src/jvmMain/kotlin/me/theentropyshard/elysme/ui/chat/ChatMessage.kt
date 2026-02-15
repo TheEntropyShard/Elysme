@@ -192,23 +192,9 @@ fun ChatMessage(
 
                         if (hasAttachment) {
                             if (message.fileMime.startsWith("image/")) {
-                                val aspectRatio = message.dimensionsWidth.toFloat() / message.dimensionsHeight.toFloat()
-
-                                val desiredWidth = if (aspectRatio > 1.0f) 640 else 360
-                                val desiredHeight = if (aspectRatio > 1.0f) 360 else 640
-
-                                val scaleX = desiredWidth.toFloat() / message.dimensionsWidth.toFloat()
-                                val scaleY = desiredHeight.toFloat() / message.dimensionsHeight.toFloat()
-                                val scale = min(scaleX, scaleY)
-
-                                val newWidth = (message.dimensionsWidth * scale).dp
-                                val newHeight = (message.dimensionsHeight * scale).dp
-
                                 ImageAttachment(
-                                    modifier = Modifier.size(newWidth, newHeight).align(Alignment.CenterHorizontally),
-                                    scale = max(scale, 1.0f),
-                                    name = message.fileName,
-                                    filePath = message.file,
+                                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                                    message = message
                                 )
                             }
                         }
@@ -259,38 +245,6 @@ fun ChatMessage(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun ImageAttachment(
-    modifier: Modifier = Modifier,
-    scale: Float,
-    name: String,
-    filePath: String,
-) {
-    Surface(
-        modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .clickable {},
-        color = MaterialTheme.colorScheme.surfaceContainerLow
-    ) {
-        NoMaxSizeImage(
-            modifier = Modifier.scale(scale),
-            contentDescription = name,
-            contentScale = ContentScale.Crop,
-            resource = {
-                asyncPainterResource(data = File(filePath))
-            },
-            onLoading = {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            },
-            onFailure = { throwable ->
-                Text(text = "Error: cannot load the image: ${throwable.toString()}")
-            }
-        )
     }
 }
 
