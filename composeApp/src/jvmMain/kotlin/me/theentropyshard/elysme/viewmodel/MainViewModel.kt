@@ -28,6 +28,7 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.theentropyshard.elysme.deltachat.model.DcChat
+import me.theentropyshard.elysme.deltachat.model.DcChatListItem
 import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.request.*
 import me.theentropyshard.elysme.deltachat.rpc.Rpc
@@ -51,7 +52,7 @@ class MainViewModel : ViewModel() {
 
     val screen = mutableStateOf<Screen>(Screen.MainScreen)
 
-    val chats = mutableStateListOf<DcChat>()
+    val chats = mutableStateListOf<DcChatListItem>()
     val messages = mutableStateMapOf<Int, SnapshotStateList<DcMessage>>()
 
     init {
@@ -77,16 +78,20 @@ class MainViewModel : ViewModel() {
 
     private fun loadChats() {
         val gson = GsonBuilder().disableJdkUnsafe().disableHtmlEscaping().create()
+
         val entriesRequest = GetChatListEntriesRequest().apply { setAccountId(currentAccountId) }
-        val jsonArray = rpc.send(entriesRequest).result.asJsonArray
+        val entries = gson.fromJson(rpc.send(entriesRequest).result, IntArray::class.java)
 
-        for (element in jsonArray) {
-            val fullChatRequest = GetFullChatByIdRequest().apply {
-                setAccountId(currentAccountId)
-                setChatId(element.asInt)
-            }
+        val itemsRequest = GetChatListItemsByEntriesRequest().apply {
+            setAccountId(currentAccountId)
+            setEntries(entries)
+        }
 
-            chats += gson.fromJson(rpc.send(fullChatRequest).result, DcChat::class.java)
+        val chatListItems =
+            gson.fromJson(rpc.send(itemsRequest).result, object : TypeToken<Map<String, DcChatListItem>>() {})
+
+        for (id in entries) {
+            chats += chatListItems[id.toString()]!!
         }
     }
 
@@ -138,44 +143,52 @@ class MainViewModel : ViewModel() {
         screen.value = Screen.MainScreen
     }
 
-    fun showChat(chat: DcChat) {
-        currentChatTitle = chat.name
-        currentChatMembers = chat.contactIds.size
-
-        if (messages.containsKey(chat.id)) {
-            currentChat = chat
-
-            return
-        }
-
+    fun showChat(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            val messageIdsRequest = GetMessageIdsRequest().apply {
+            val chatRequest = GetFullChatByIdRequest().apply {
                 setAccountId(currentAccountId)
-                setChatId(chat.id)
-                setInfoOnly(false)
-                setAddDaymarker(true)
+                setChatId(id)
             }
 
-            val messageIds = Gson().fromJson(rpc.send(messageIdsRequest).result, IntArray::class.java)
+            val chat = Gson().fromJson(rpc.send(chatRequest).result, DcChat::class.java)
 
-            val messagesRequest = GetMessagesRequest().apply {
-                setAccountId(currentAccountId)
-                setMessageIds(messageIds)
-            }
-            val messagesResponse = rpc.send(messagesRequest)
+            currentChatTitle = chat.name
+            currentChatMembers = chat.contactIds.size
 
-            val sortedMessages = mutableListOf<DcMessage>()
-
-            val specialMessageIdLast = 9
-
-            val asMap = Gson().fromJson(messagesResponse.result, object : TypeToken<Map<String, DcMessage>>() {})
-            messageIds.filterNot { id -> id <= specialMessageIdLast }
-                .forEach { id -> asMap[id.toString()]?.let { sortedMessages += it } }
-
-            viewModelScope.launch {
-                messages.getOrPut(chat.id) { mutableStateListOf() }.addAll(sortedMessages)
-
+            if (messages.containsKey(id)) {
                 currentChat = chat
+            } else {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val messageIdsRequest = GetMessageIdsRequest().apply {
+                        setAccountId(currentAccountId)
+                        setChatId(id)
+                        setInfoOnly(false)
+                        setAddDaymarker(true)
+                    }
+
+                    val messageIds = Gson().fromJson(rpc.send(messageIdsRequest).result, IntArray::class.java)
+
+                    val messagesRequest = GetMessagesRequest().apply {
+                        setAccountId(currentAccountId)
+                        setMessageIds(messageIds)
+                    }
+                    val messagesResponse = rpc.send(messagesRequest)
+
+                    val sortedMessages = mutableListOf<DcMessage>()
+
+                    val specialMessageIdLast = 9
+
+                    val asMap =
+                        Gson().fromJson(messagesResponse.result, object : TypeToken<Map<String, DcMessage>>() {})
+                    messageIds.filterNot { id -> id <= specialMessageIdLast }
+                        .forEach { id -> asMap[id.toString()]?.let { sortedMessages += it } }
+
+                    viewModelScope.launch {
+                        messages.getOrPut(id) { mutableStateListOf() }.addAll(sortedMessages)
+
+                        currentChat = chat
+                    }
+                }
             }
         }
     }

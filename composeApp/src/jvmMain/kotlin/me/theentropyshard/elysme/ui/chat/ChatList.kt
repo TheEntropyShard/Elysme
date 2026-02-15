@@ -22,29 +22,36 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import me.theentropyshard.elysme.deltachat.model.DcChat
+import me.theentropyshard.elysme.deltachat.model.DcChatListItem
 import me.theentropyshard.elysme.viewmodel.MainViewModel
+import java.time.ZoneId
+import java.time.Instant
 
 @Composable
 fun ChatList(
     modifier: Modifier = Modifier,
     model: MainViewModel,
-    onClick: (DcChat) -> Unit
+    onClick: (DcChatListItem) -> Unit
 ) {
     LazyColumn(
         modifier = modifier
     ) {
-        items(model.chats) {
-            val msg = model.messages[it.id]?.lastOrNull()
-            val lastMessageText = "${msg?.sender?.displayName ?: ""}: ${msg?.text?.replace("\n", " ") ?: ""}"
+        items(model.chats) { chat ->
+            val summary = buildString {
+                if (chat.summaryText1 != null && chat.summaryText1.isNotEmpty()) {
+                    append(chat.summaryText1).append(": ")
+                }
+
+                append(chat.summaryText2)
+            }
 
             ChatListItem(
-                profileImagePath = it.profileImage,
-                chatName = it.name,
-                lastEventText = lastMessageText
-            ) {
-                onClick(it)
-            }
+                profileImagePath = chat.avatarPath,
+                chatName = chat.name,
+                lastUpdated = FORMATTER.format(Instant.ofEpochMilli(chat.lastUpdated).atZone(ZoneId.systemDefault())),
+                summary = summary,
+                onClick = { onClick(chat) }
+            )
         }
     }
 }

@@ -75,9 +75,8 @@ fun App(modifier: Modifier = Modifier) {
                         ChatList(
                             modifier = Modifier.fillMaxHeight(),
                             model = model,
-                        ) { chat ->
-                            model.showChat(chat)
-                        }
+                            onClick = { chat -> model.showChat(chat.id) }
+                        )
                     }
 
                     second(minSize = 512.dp) {

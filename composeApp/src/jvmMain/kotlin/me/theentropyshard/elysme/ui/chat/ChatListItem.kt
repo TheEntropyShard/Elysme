@@ -38,8 +38,8 @@ fun ChatListItem(
     modifier: Modifier = Modifier,
     profileImagePath: String?,
     chatName: String,
-    messageTime: String = "00:00",
-    lastEventText: String = "Lorem ipsum dolor sit amet",
+    lastUpdated: String,
+    summary: String,
     onClick: () -> Unit
 ) {
     Row(
@@ -76,13 +76,13 @@ fun ChatListItem(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = messageTime,
+                    text = lastUpdated,
                     fontFamily = Fonts.googleSans(),
                 )
             }
 
             Text(
-                text = lastEventText,
+                text = summary,
                 fontFamily = Fonts.googleSans(),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
