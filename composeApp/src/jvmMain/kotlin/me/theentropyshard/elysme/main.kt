@@ -18,26 +18,94 @@
 
 package me.theentropyshard.elysme
 
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.google.gson.Gson
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import elysme.composeapp.generated.resources.Res
+import elysme.composeapp.generated.resources.sheet_google_64
+import kotlinx.coroutines.launch
 import me.theentropyshard.elysme.ui.theme.ElysmeTheme
+import net.fellbaum.jemoji.EmojiManager
+import org.jetbrains.compose.resources.imageResource
 import java.awt.Frame
+import java.lang.String.join
+import java.util.regex.Pattern
+import kotlin.text.Charsets.UTF_8
 
 lateinit var parent: Frame
+lateinit var sheet: ImageBitmap
+val emojis: MutableMap<String?, JsonObject?> = HashMap()
+val emojiPattern = Pattern.compile("&#x(\\w+);")
 
-fun main() = application {
-    Window(
-        onCloseRequest = ::exitApplication,
-        state = rememberWindowState(size = DpSize(1280.dp, 720.dp)),
-        title = "Elysme"
-    ) {
-        parent = window
+fun getEmojiInfo(emoji: String): Pair<Int, Int>? {
+    val code = EmojiManager.getEmoji(emoji).get().htmlHexadecimalCode
+    val matcher = emojiPattern.matcher(code)
+    val s: MutableList<String?> = ArrayList()
+    while (matcher.find()) {
+        val m = matcher.group(1)
+        val length = m.length
+        if (length <= 4) {
+            s.add("0000".substring(length) + m)
+        } else {
+            s.add(m)
+        }
+    }
 
-        ElysmeTheme {
-            App()
+    val obj = emojis[join("-", s)]
+
+    if (obj != null) {
+        val sheetX = obj.get("sheet_x").asInt
+        val sheetY = obj.get("sheet_y").asInt
+        val x = (sheetX * (64 + 2)) + 1
+        val y = (sheetY * (64 + 2)) + 1
+
+        return Pair(x, y)
+    } else {
+        return null
+    }
+}
+
+fun main() {
+    application {
+        sheet = imageResource(Res.drawable.sheet_google_64)
+
+        val scope = rememberCoroutineScope()
+
+        scope.launch {
+            val bytes = Res.readBytes("files/emoji.json").toString(UTF_8)
+
+            val jsonArray = Gson().fromJson(bytes, JsonArray::class.java)
+
+            for (element in jsonArray) {
+                val obj: JsonObject = element.getAsJsonObject()
+
+                val nonQualified = obj.get("non_qualified")
+
+                if (!nonQualified.isJsonNull) {
+                    emojis[nonQualified.asString] = obj
+                }
+
+                emojis[obj.get("unified").asString] = obj
+            }
+        }
+
+        Window(
+            onCloseRequest = ::exitApplication,
+            state = rememberWindowState(size = DpSize(1280.dp, 720.dp)),
+            title = "Elysme"
+        ) {
+            parent = window
+
+            ElysmeTheme {
+                App()
+            }
         }
     }
 }

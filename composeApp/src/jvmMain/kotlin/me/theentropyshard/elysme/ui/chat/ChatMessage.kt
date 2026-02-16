@@ -18,6 +18,7 @@
 
 package me.theentropyshard.elysme.ui.chat
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -27,15 +28,24 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.layout.LastBaseline
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
 import elysme.composeapp.generated.resources.Res
 import elysme.composeapp.generated.resources.edit24dp
 import elysme.composeapp.generated.resources.read24dp
@@ -43,11 +53,18 @@ import elysme.composeapp.generated.resources.unread24dp
 import io.kamel.core.utils.File
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import me.theentropyshard.elysme.deltachat.model.DcContact
 import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.model.DcReactions
+import me.theentropyshard.elysme.deltachat.request.GetContactRequest
+import me.theentropyshard.elysme.deltachat.request.GetContactsByIdsRequest
+import me.theentropyshard.elysme.deltachat.request.GetSingleMessageRequest
+import me.theentropyshard.elysme.ui.emoji.Emoji
 import me.theentropyshard.elysme.ui.extensions.noRippleClickable
 import me.theentropyshard.elysme.ui.theme.Fonts
+import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
+import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -56,6 +73,7 @@ import java.time.format.DateTimeFormatter
 fun ChatMessage(
     modifier: Modifier = Modifier,
     message: DcMessage,
+    model: MainViewModel,
     onReply: (DcMessage) -> Unit,
     onReplyClick: (Int) -> Unit
 ) {
@@ -120,9 +138,9 @@ fun ChatMessage(
                 ) {
                     Column(
                         modifier = if (myself) {
-                            Modifier.padding(start = 8.dp, end = 8.dp, bottom = 4.dp, top = 8.dp)
+                            Modifier.padding(start = 8.dp, end = 8.dp, bottom = 0.dp, top = 8.dp)
                         } else {
-                            Modifier.padding(start = 8.dp, end = 8.dp, bottom = 4.dp, top = 4.dp)
+                            Modifier.padding(start = 8.dp, end = 8.dp, bottom = 0.dp, top = 4.dp)
                         }
                     ) {
                         if (!myself) {
@@ -203,37 +221,48 @@ fun ChatMessage(
                                 text = message.text,
                                 fontFamily = Fonts.googleSans()
                             )
+                        } else if (hasAttachment) {
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
 
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            ReactionsView(reactions = message.reactions)
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            ReactionsView(
+                                modifier = Modifier.padding(bottom = 8.dp),
+                                reactions = message.reactions,
+                                model = model
+                            )
 
-                            Spacer(modifier = Modifier.weight(1f))
+                            Spacer(modifier = Modifier.weight(1f).width(16.dp))
 
                             Row(
+                                modifier = Modifier.padding(bottom = 6.dp),
                                 horizontalArrangement = Arrangement.End,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 if (message.isIsEdited) {
                                     Icon(
-                                        modifier = Modifier.size(16.dp).padding(top = 2.dp, end = 2.dp),
+                                        modifier = Modifier.size(16.dp),
                                         painter = painterResource(Res.drawable.edit24dp),
                                         contentDescription = "Message was edited",
                                     )
+
+                                    Spacer(modifier = Modifier.width(4.dp))
                                 }
 
                                 Text(
-                                    text = FORMATTER.format(java.time.Instant.ofEpochSecond(message.timestamp)
-                                        .atZone(ZoneId.systemDefault())),
+                                    text = FORMATTER.format(
+                                        Instant.ofEpochSecond(message.timestamp).atZone(ZoneId.systemDefault())
+                                    ),
                                     fontFamily = Fonts.googleSans(),
-                                    fontSize = 12.sp
+                                    fontSize = 12.sp,
+                                    lineHeight = 12.sp
                                 )
 
                                 if (myself) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+
                                     Icon(
-                                        modifier = Modifier.size(18.dp).padding(top = 2.dp),
+                                        modifier = Modifier.size(18.dp),
                                         painter = painterResource(if (read) Res.drawable.read24dp else Res.drawable.unread24dp),
                                         contentDescription = "Message status indicator",
                                         tint = MaterialTheme.colorScheme.primary
@@ -250,20 +279,46 @@ fun ChatMessage(
 
 val FORMATTER = DateTimeFormatter.ofPattern("HH:mm")
 
-private fun transformReactions(reactions: Map<String, List<String>>): Map<String, List<String>> {
-    return mapOf()
+private fun transformReactions(reactions: Map<String, List<String>>): Map<String, Set<String>> {
+    val ret = mutableMapOf<String, MutableSet<String>>()
+
+    for (reactionSet in reactions.values) {
+        for (reaction in reactionSet) {
+            ret.computeIfAbsent(reaction) { mutableSetOf() }
+        }
+    }
+
+    for (r in ret.keys) {
+        for (entry in reactions) {
+            if (r in entry.value) {
+                ret[r]!! += entry.key
+            }
+        }
+    }
+
+    return ret
 }
 
 @Composable
 private fun ReactionsView(
     modifier: Modifier = Modifier,
+    model: MainViewModel,
     reactions: DcReactions?
 ) {
     if (reactions == null || reactions.reactionsByContact == null) return
 
-    FlowRow(modifier = modifier) {
-        for (entry in reactions.reactionsByContact) {
+    val transformed = transformReactions(reactions.reactionsByContact)
 
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        for (entry in transformed) {
+            ReactionItem(
+                model = model,
+                emoji = entry.key,
+                contacts = entry.value
+            )
         }
     }
 }
@@ -271,14 +326,49 @@ private fun ReactionsView(
 @Composable
 private fun ReactionItem(
     modifier: Modifier = Modifier,
-    emoji: String
+    model: MainViewModel,
+    emoji: String,
+    contacts: Set<String>,
 ) {
+    val request = GetContactsByIdsRequest().apply {
+        setAccountId(model.currentAccountId)
+        setContactIds(contacts.map { it.toInt() })
+    }
+
+    val realContacts =
+        model.gson.fromJson(model.rpc.send(request).result, object : TypeToken<Map<String, DcContact>>() {})
+
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(percent = 50))
-            .background(color = MaterialTheme.colorScheme.primaryContainer),
+            .background(color = MaterialTheme.colorScheme.inversePrimary)
+            .padding(3.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = emoji)
+        Emoji(
+            modifier = Modifier.size(20.dp),
+            emoji = emoji
+        )
+
+        Spacer(modifier = Modifier.width(2.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy((-5).dp)
+        ) {
+            for (string in contacts) {
+                val contact = realContacts[string]
+
+                if (contact != null) {
+                    KamelImage(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(20.dp),
+                        resource = { asyncPainterResource(data = File(contact.profileImage)) },
+                        contentDescription = ""
+                    )
+                }
+            }
+        }
     }
 }

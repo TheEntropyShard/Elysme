@@ -100,20 +100,29 @@ fun ChatBody(
 
                                 val msg = model.gson.fromJson(model.rpc.send(request).result, DcMessage::class.java)
 
-                                if (msg.isIsInfo) {
+                                if (msg == null) {
                                     ChatInfoMessage(
                                         modifier = Modifier.fillMaxWidth(),
-                                        text = msg.text,
-                                        foreground = MaterialTheme.colorScheme.onSecondaryContainer
+                                        text = "Error loading message ${message.msgId}",
+                                        foreground = MaterialTheme.colorScheme.onErrorContainer,
+                                        background = MaterialTheme.colorScheme.errorContainer,
                                     )
                                 } else {
-                                    ChatMessage(message = msg, onReply = onReply) { id ->
-                                        scope.launch {
-                                            val index =
-                                                messages.size - messages.indexOfFirst { msg -> msg.msgId == id } - 1
+                                    if (msg.isIsInfo) {
+                                        ChatInfoMessage(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            text = msg.text,
+                                            foreground = MaterialTheme.colorScheme.onSecondaryContainer
+                                        )
+                                    } else {
+                                        ChatMessage(message = msg, model = model, onReply = onReply) { id ->
+                                            scope.launch {
+                                                val index =
+                                                    messages.size - messages.indexOfFirst { msg -> msg.msgId == id } - 1
 
-                                            if (index >= 0 && index < messages.size) {
-                                                state.animateScrollToItem(index)
+                                                if (index >= 0 && index < messages.size) {
+                                                    state.animateScrollToItem(index)
+                                                }
                                             }
                                         }
                                     }
