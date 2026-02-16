@@ -193,6 +193,8 @@ fun ChatMessage(
                                     modifier = Modifier.align(Alignment.CenterHorizontally),
                                     message = message
                                 )
+                            } else {
+                                FileAttachment(message = message)
                             }
                         }
 
