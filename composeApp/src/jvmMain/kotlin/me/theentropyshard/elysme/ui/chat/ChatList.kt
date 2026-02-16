@@ -48,6 +48,7 @@ fun ChatList(
             ChatListItem(
                 profileImagePath = chat.avatarPath,
                 chatName = chat.name,
+                selected = model.currentChat != null && model.currentChat!!.id == chat.id,
                 lastUpdated = FORMATTER.format(Instant.ofEpochMilli(chat.lastUpdated).atZone(ZoneId.systemDefault())),
                 summary = summary,
                 onClick = { onClick(chat) }
