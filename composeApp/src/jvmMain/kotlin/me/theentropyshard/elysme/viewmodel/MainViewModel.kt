@@ -98,14 +98,16 @@ class MainViewModel : ViewModel() {
     private fun handleEvents() {
         val gson = Gson()
 
+        val debugPrintEvents = System.getenv("DEBUG_PRINT_EVENTS")?.toBoolean() ?: false
+
         while (rpc.running.get()) {
             val event = rpc.waitForEvent(currentAccountId)
             val kind = event["kind"].asString
 
+            if (debugPrintEvents && kind != "Info") println(event)
+
             when (kind) {
                 "IncomingMsg" -> {
-                    println("incoming msg")
-
                     val chatId = event.get("chatId").asInt
                     val msgId = event.get("msgId").asInt
 
@@ -121,8 +123,6 @@ class MainViewModel : ViewModel() {
                 }
 
                 "MsgRead" -> {
-                    println("msg read")
-
                     val chatId = event.get("chatId").asInt
                     val msgId = event.get("msgId").asInt
 
