@@ -22,27 +22,32 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.kamel.core.utils.File
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import me.theentropyshard.elysme.deltachat.model.DcChatListItem
 import me.theentropyshard.elysme.ui.theme.Fonts
+import java.time.Instant
+import java.time.ZoneId
 
 @Composable
 fun ChatListItem(
     modifier: Modifier = Modifier,
-    profileImagePath: String?,
+    chat: DcChatListItem,
     selected: Boolean,
-    chatName: String,
-    lastUpdated: String,
-    summary: String,
     onClick: () -> Unit
 ) {
     Row(
@@ -51,11 +56,11 @@ fun ChatListItem(
             .clickable { onClick() }
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
-        if (profileImagePath != null) {
+        if (chat.avatarPath != null) {
             KamelImage(
                 modifier = Modifier.size(48.dp).clip(CircleShape),
-                resource = { asyncPainterResource(data = File(profileImagePath)) },
-                contentDescription = "Chat profile image - $chatName",
+                resource = { asyncPainterResource(data = File(chat.avatarPath)) },
+                contentDescription = "Chat profile image - ${chat.name}",
             )
         } else {
             Surface(
@@ -72,7 +77,7 @@ fun ChatListItem(
         Column {
             Row {
                 Text(
-                    text = chatName,
+                    text = chat.name,
                     fontWeight = FontWeight.Medium,
                     fontFamily = Fonts.googleSans(),
                 )
@@ -80,17 +85,50 @@ fun ChatListItem(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = lastUpdated,
+                    text = FORMATTER.format(Instant.ofEpochMilli(chat.lastUpdated).atZone(ZoneId.systemDefault())),
                     fontFamily = Fonts.googleSans(),
                 )
             }
 
-            Text(
-                text = summary,
-                fontFamily = Fonts.googleSans(),
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = buildString {
+                        if (chat.summaryText1 != null && chat.summaryText1.isNotEmpty()) {
+                            append(chat.summaryText1).append(": ")
+                        }
+
+                        append(chat.summaryText2)
+                    },
+                    fontFamily = Fonts.googleSans(),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
+                )
+
+                if (chat.freshMessageCounter > 0) {
+                    var heightPx by remember { mutableStateOf(0) }
+                    val density = LocalDensity.current
+                    val minWidthDp = with(density) { (if (heightPx == 0) 0 else heightPx).toDp() }
+
+                    Box(
+                        modifier = modifier
+                            .onSizeChanged { heightPx = it.height }
+                            .clip(RoundedCornerShape(percent = 50))
+                            .background(color = MaterialTheme.colorScheme.onSecondaryContainer)
+                            .requiredWidthIn(min = minWidthDp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(vertical = 1.dp, horizontal = 4.dp),
+                            text = "${chat.freshMessageCounter}",
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            fontFamily = Fonts.googleSans(),
+                            fontSize = 14.sp,
+                            lineHeight = 14.sp
+                        )
+                    }
+                }
+            }
         }
     }
 }

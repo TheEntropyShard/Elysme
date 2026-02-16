@@ -24,8 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import me.theentropyshard.elysme.deltachat.model.DcChatListItem
 import me.theentropyshard.elysme.viewmodel.MainViewModel
-import java.time.ZoneId
-import java.time.Instant
 
 @Composable
 fun ChatList(
@@ -33,25 +31,12 @@ fun ChatList(
     model: MainViewModel,
     onClick: (DcChatListItem) -> Unit
 ) {
-    LazyColumn(
-        modifier = modifier
-    ) {
-        items(model.chats) { chat ->
-            val summary = buildString {
-                if (chat.summaryText1 != null && chat.summaryText1.isNotEmpty()) {
-                    append(chat.summaryText1).append(": ")
-                }
-
-                append(chat.summaryText2)
-            }
-
+    LazyColumn(modifier = modifier) {
+        items(model.chats) {
             ChatListItem(
-                profileImagePath = chat.avatarPath,
-                chatName = chat.name,
-                selected = model.currentChat != null && model.currentChat!!.id == chat.id,
-                lastUpdated = FORMATTER.format(Instant.ofEpochMilli(chat.lastUpdated).atZone(ZoneId.systemDefault())),
-                summary = summary,
-                onClick = { onClick(chat) }
+                chat = it,
+                selected = model.currentChat != null && model.currentChat!!.id == it.id,
+                onClick = { onClick(it) }
             )
         }
     }
