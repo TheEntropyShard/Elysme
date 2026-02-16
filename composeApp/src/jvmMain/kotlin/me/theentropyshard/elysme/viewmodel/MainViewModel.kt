@@ -33,6 +33,7 @@ import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.request.*
 import me.theentropyshard.elysme.deltachat.rpc.Rpc
 import me.theentropyshard.elysme.deltachat.rpc.RpcMethod
+import me.theentropyshard.elysme.ui.extensions.indexMap
 
 sealed class Screen {
     object ImportBackupScreen : Screen()
@@ -133,6 +134,40 @@ class MainViewModel : ViewModel() {
                         if (index != -1) {
                             messageList[index] = DcMessage(messageList[index].also { it.state = 28 })
                         }
+                    }
+                }
+
+                "ChatlistItemChanged" -> {
+                    val chatId = event.get("chatId").asInt
+
+                    viewModelScope.launch(Dispatchers.IO) {
+                        val itemsRequest = GetChatListItemsByEntriesRequest().apply {
+                            setAccountId(currentAccountId)
+                            setEntries(IntArray(1).apply { set(0, chatId) })
+                        }
+
+                        val chatListItems =
+                            gson.fromJson(
+                                rpc.send(itemsRequest).result,
+                                object : TypeToken<Map<String, DcChatListItem>>() {})
+
+                        val chat = chats.find { it.id == chatId }
+
+                        if (chat != null) {
+                            val newChat = chatListItems[chatId.toString()]
+
+                            if (newChat != null) chats[chats.indexOf(chat)] = newChat
+                        }
+                    }
+                }
+
+                "ChatlistChanged" -> {
+                    viewModelScope.launch {
+                        val entriesRequest = GetChatListEntriesRequest().apply { setAccountId(currentAccountId) }
+                        val entries = gson.fromJson(rpc.send(entriesRequest).result, object : TypeToken<List<Int>>() {})
+                        val orderMap = entries.indexMap()
+
+                        chats.sortBy { orderMap[it.id] }
                     }
                 }
             }
