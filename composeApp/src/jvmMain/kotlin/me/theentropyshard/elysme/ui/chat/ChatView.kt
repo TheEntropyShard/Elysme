@@ -61,7 +61,8 @@ fun ChatView(
 
                 ChatBody(
                     modifier = Modifier.weight(1f),
-                    messages = messages!!
+                    messages = messages!!,
+                    model = model
                 ) {
                     model.replyTo(it)
                 }

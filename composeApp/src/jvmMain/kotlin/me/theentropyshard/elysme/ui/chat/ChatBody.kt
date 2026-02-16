@@ -38,16 +38,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEachReversed
 import elysme.composeapp.generated.resources.Res
 import elysme.composeapp.generated.resources.forward24dp
 import kotlinx.coroutines.launch
 import me.theentropyshard.elysme.deltachat.model.DcMessage
+import me.theentropyshard.elysme.deltachat.model.DcMessageListItem
+import me.theentropyshard.elysme.deltachat.request.GetSingleMessageRequest
+import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun ChatBody(
     modifier: Modifier = Modifier,
-    messages: List<DcMessage>,
+    messages: List<DcMessageListItem>,
+    model: MainViewModel,
     onReply: (DcMessage) -> Unit,
 ) {
     val state = rememberLazyListState()
@@ -78,15 +83,48 @@ fun ChatBody(
                 contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
             ) {
-                items(count = messages.size, key = { messages[messages.size - 1 - it].id }) {
-                    val message = messages[messages.size - 1 - it]
+                messages.fastForEachReversed { message ->
+                    val key = when (message.kind) {
+                        "message" -> message.msgId
+                        "dayMarker" -> "dayMarker-${message.timestamp}"
+                        else -> throw RuntimeException("Unexpected kind of message: ${message.kind}")
+                    }
 
-                    ChatMessage(message = message, onReply = onReply) { id ->
-                        scope.launch {
-                            val index = messages.size - messages.indexOfFirst { msg -> msg.id == id } - 1
+                    item(key = key) {
+                        when (message.kind) {
+                            "message" -> {
+                                val request = GetSingleMessageRequest().apply {
+                                    setAccountId(model.currentAccountId)
+                                    setMsgId(message.msgId)
+                                }
 
-                            if (index >= 0 && index < messages.size) {
-                                state.animateScrollToItem(index)
+                                val msg = model.gson.fromJson(model.rpc.send(request).result, DcMessage::class.java)
+
+                                if (msg.isIsInfo) {
+                                    ChatInfoMessage(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        text = msg.text,
+                                        foreground = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                } else {
+                                    ChatMessage(message = msg, onReply = onReply) { id ->
+                                        scope.launch {
+                                            val index =
+                                                messages.size - messages.indexOfFirst { msg -> msg.msgId == id } - 1
+
+                                            if (index >= 0 && index < messages.size) {
+                                                state.animateScrollToItem(index)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            "dayMarker" -> {
+                                ChatDayMarker(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                                    timestamp = message.timestamp
+                                )
                             }
                         }
                     }
