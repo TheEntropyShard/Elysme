@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -59,7 +60,7 @@ fun ChatListItem(
         if (chat.avatarPath != null) {
             KamelImage(
                 modifier = Modifier.size(48.dp).clip(CircleShape),
-                resource = { asyncPainterResource(data = File(chat.avatarPath)) },
+                resource = { asyncPainterResource(data = File(chat.avatarPath), filterQuality = FilterQuality.High) },
                 contentDescription = "Chat profile image - ${chat.name}",
             )
         } else {
