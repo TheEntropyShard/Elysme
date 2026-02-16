@@ -18,9 +18,14 @@
 
 package me.theentropyshard.elysme.deltachat.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class DcMessageListItem {
     private String kind;
+
+    @SerializedName("msg_id")
     private int msgId;
+
     private long timestamp;
 
     public DcMessageListItem() {
