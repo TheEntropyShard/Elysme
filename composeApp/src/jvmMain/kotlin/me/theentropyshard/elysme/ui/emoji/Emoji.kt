@@ -22,6 +22,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import me.theentropyshard.elysme.getEmojiInfo
@@ -47,7 +48,8 @@ fun Emoji(
                 srcOffset = srcOffset,
                 srcSize = srcSize,
                 dstOffset = dstOffset,
-                dstSize = dstSize
+                dstSize = dstSize,
+                filterQuality = FilterQuality.High
             )
         }
     }
