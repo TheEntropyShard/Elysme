@@ -24,14 +24,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.awtClipboard
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
+import java.awt.Image
+import java.awt.datatransfer.DataFlavor
+import java.io.File
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ChatView(
     modifier: Modifier = Modifier,
@@ -75,10 +82,42 @@ fun ChatView(
                             .height(1.dp),
                     )
 
+                    val clipboard = LocalClipboard.current
+
                     ChatInput(
                         modifier = Modifier.fillMaxWidth(),
                         model = model,
                         onAttachClick = {},
+                        onPaste = {
+                            try {
+                                val contents = clipboard.awtClipboard?.getContents(null)
+
+                                if (contents != null) {
+                                    for (flavor in contents.transferDataFlavors) {
+                                        when {
+                                            flavor.equals(DataFlavor.imageFlavor) -> {
+                                                val image = contents.getTransferData(DataFlavor.imageFlavor) as Image
+
+                                                model.getImageFromClipboard(image)
+
+                                                break
+                                            }
+
+                                            flavor.isFlavorJavaFileListType -> {
+                                                @Suppress("UNCHECKED_CAST")
+                                                val files = contents.getTransferData(flavor) as List<File>
+
+                                                model.currentFile = files[0]
+
+                                                break
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
                     )
                 }
             }

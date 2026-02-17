@@ -19,12 +19,8 @@
 package me.theentropyshard.elysme.ui.chat
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -44,7 +40,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import elysme.composeapp.generated.resources.Res
 import elysme.composeapp.generated.resources.attach24dp
+import elysme.composeapp.generated.resources.close24dp
 import elysme.composeapp.generated.resources.send24dp
+import io.kamel.image.KamelImage
+import io.kamel.image.asyncPainterResource
 import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
@@ -54,13 +53,18 @@ fun ChatInput(
     modifier: Modifier = Modifier,
     model: MainViewModel,
     onAttachClick: () -> Unit,
+    onPaste: () -> Unit,
 ) {
     val state = rememberTextFieldState()
     val requester = remember { FocusRequester() }
 
     val sendMessage: () -> Unit = {
-        if (state.text.trim().isNotBlank()) {
-            model.sendMessage(state.text.toString())
+        if (state.text.trim().isNotBlank() || model.currentFile != null) {
+            var text: String? = null
+
+            if (state.text.trim().isNotBlank()) text = state.text.toString()
+
+            model.sendMessage(text)
         }
 
         state.edit { delete(start = 0, end = length) }
@@ -77,11 +81,75 @@ fun ChatInput(
         modifier = modifier,
         state = state,
         focusRequester = requester,
-        quoteColor = model.currentReplyTo?.sender?.color,
-        quoteName = model.currentReplyTo?.sender?.displayName,
-        quoteText = model.currentReplyTo?.text,
         onSend = sendMessage,
-        onCancelReply = { model.cancelReply() },
+        onPaste = onPaste,
+        quoteView = if (model.currentReplyTo?.text == null && model.currentFile == null) {
+            null
+        } else {
+            {
+                if (model.currentReplyTo?.text != null) {
+                    QuoteView(
+                        modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
+                        color = model.currentReplyTo?.sender?.color,
+                        name = model.currentReplyTo?.sender?.displayName,
+                        text = model.currentReplyTo?.text!!,
+                        onClick = { model.cancelReply() }
+                    )
+                }
+
+                if (model.currentReplyTo?.text != null && model.currentFile != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .background(color = MaterialTheme.colorScheme.secondaryContainer)
+                            .fillMaxWidth()
+                            .height(1.dp),
+                    )
+                }
+
+                if (model.currentFile != null) {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        val fileName = model.currentFile!!.name
+
+                        if (fileName.endsWith(".png") || fileName.endsWith(".jpg") ||
+                            fileName.endsWith(".jpeg") || fileName.endsWith(".bmp") ||
+                            fileName.endsWith(".avif") || fileName.endsWith(".jfif") ||
+                            fileName.endsWith(".gif") || fileName.endsWith(".webp") ||
+                            fileName.endsWith(".svg") || fileName.endsWith(".tif") ||
+                            fileName.endsWith(".tiff")
+                        ) {
+                            KamelImage(
+                                modifier = Modifier
+                                    .padding(start = 8.dp, end = 8.dp, top = 8.dp)
+                                    .align(Alignment.Center)
+                                    .width(360.dp)
+                                    .aspectRatio(16.0f / 9.0f),
+                                resource = { asyncPainterResource(data = model.currentFile!!) },
+                                contentDescription = "File: ${model.currentFile}"
+                            )
+                        } else {
+                            FileAttachment(
+                                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
+                                name = fileName,
+                                size = model.currentFile!!.length()
+                            )
+                        }
+
+                        IconButton(
+                            modifier = Modifier.align(Alignment.TopEnd),
+                            onClick = { model.currentFile = null }
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.close24dp),
+                                contentDescription = "",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+            }
+        },
         placeholder = {
             Text(
                 text = "Write a message...",
@@ -115,11 +183,9 @@ private fun ChatInputBase(
     modifier: Modifier = Modifier,
     state: TextFieldState,
     focusRequester: FocusRequester,
-    quoteName: String? = null,
-    quoteText: String? = null,
-    quoteColor: String? = null,
+    quoteView: (@Composable ColumnScope.() -> Unit)?,
     onSend: () -> Unit,
-    onCancelReply: () -> Unit,
+    onPaste: () -> Unit,
     leadingIcon: @Composable () -> Unit = {},
     trailingIcon: @Composable () -> Unit = {},
     placeholder: @Composable () -> Unit = {},
@@ -128,15 +194,7 @@ private fun ChatInputBase(
         modifier = modifier.animateContentSize(),
         verticalArrangement = Arrangement.Center
     ) {
-        if (quoteText != null) {
-            QuoteView(
-                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
-                color = quoteColor,
-                name = quoteName,
-                text = quoteText,
-                onClick = onCancelReply
-            )
-        }
+        quoteView?.invoke(this)
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             leadingIcon()
@@ -145,9 +203,7 @@ private fun ChatInputBase(
                 modifier = Modifier.weight(1f),
                 contentAlignment = Alignment.CenterStart
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     AnimatedVisibility(
                         visible = state.text.isEmpty(),
                         enter = fadeIn() + slideInHorizontally(initialOffsetX = { it }),
@@ -160,14 +216,28 @@ private fun ChatInputBase(
                 BasicTextField(
                     modifier = Modifier
                         .onPreviewKeyEvent { event ->
-                            if (event.type == KeyEventType.KeyDown && event.key == Key.Enter) {
-                                if (!event.isShiftPressed) {
-                                    onSend()
-                                } else {
-                                    state.edit { append('\n') }
-                                }
+                            if (event.type == KeyEventType.KeyDown) {
+                                when (event.key) {
+                                    Key.Enter -> {
+                                        if (!event.isShiftPressed) {
+                                            onSend()
+                                        } else {
+                                            state.edit { append('\n') }
+                                        }
 
-                                true
+                                        true
+                                    }
+
+                                    Key.V if event.isCtrlPressed -> {
+                                        onPaste()
+
+                                        true
+                                    }
+
+                                    else -> {
+                                        false
+                                    }
+                                }
                             } else {
                                 false
                             }
@@ -176,10 +246,8 @@ private fun ChatInputBase(
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
                     lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 8),
+                    textStyle = TextStyle(fontFamily = Fonts.googleSans()),
                     state = state,
-                    textStyle = TextStyle(
-                        fontFamily = Fonts.googleSans(),
-                    )
                 )
             }
 

@@ -28,6 +28,8 @@ public class SendMessageRequest extends RpcRequest {
     private int chatId;
     private String text;
     private Integer quotedMessageId;
+    private String file;
+    private String filename;
 
     public SendMessageRequest() {
         super(RpcMethod.send_msg.name());
@@ -39,10 +41,21 @@ public class SendMessageRequest extends RpcRequest {
         this.addParam(this.chatId);
 
         JsonObject object = new JsonObject();
-        object.addProperty("text", this.text);
+
+        if (this.text != null) {
+            object.addProperty("text", this.text);
+        }
 
         if (this.quotedMessageId != null) {
             object.addProperty("quotedMessageId", this.quotedMessageId);
+        }
+
+        if (this.file != null) {
+            object.addProperty("file", this.file);
+        }
+
+        if (this.filename != null) {
+            object.addProperty("filename", this.filename);
         }
 
         this.addParam(object);
@@ -62,5 +75,13 @@ public class SendMessageRequest extends RpcRequest {
 
     public void setQuotedMessageId(Integer quotedMessageId) {
         this.quotedMessageId = quotedMessageId;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 }

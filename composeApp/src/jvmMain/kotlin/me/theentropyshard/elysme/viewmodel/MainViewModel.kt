@@ -35,8 +35,14 @@ import me.theentropyshard.elysme.deltachat.request.*
 import me.theentropyshard.elysme.deltachat.rpc.Rpc
 import me.theentropyshard.elysme.deltachat.rpc.RpcMethod
 import me.theentropyshard.elysme.ui.extensions.indexMap
+import me.theentropyshard.elysme.ui.extensions.toBufferedImage
+import java.awt.Image
+import java.io.File
+import javax.imageio.ImageIO
 import kotlin.collections.plus
 import kotlin.collections.plusAssign
+import kotlin.io.path.Path
+import kotlin.io.path.createTempFile
 
 sealed class Screen {
     object ImportBackupScreen : Screen()
@@ -54,6 +60,7 @@ class MainViewModel : ViewModel() {
     var currentChatMembers by mutableStateOf(0)
 
     var currentReplyTo by mutableStateOf<DcMessage?>(null)
+    var currentFile by mutableStateOf<File?>(null)
 
     val screen = mutableStateOf<Screen>(Screen.MainScreen)
 
@@ -216,16 +223,21 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun sendMessage(message: String) {
+    fun sendMessage(message: String?) {
         viewModelScope.launch(Dispatchers.IO) {
             val sendMessageRequest = SendMessageRequest().apply {
                 setAccountId(currentAccountId)
                 setChatId(currentChat!!.id)
                 setText(message)
                 setQuotedMessageId(currentReplyTo?.id)
+                setFile(currentFile?.absolutePath)
+                setFilename(currentFile?.name)
             }
 
-            viewModelScope.launch { cancelReply() }
+            viewModelScope.launch {
+                cancelReply()
+                currentFile = null
+            }
 
             val sentMessageId = rpc.send(sendMessageRequest).result.asInt
 
@@ -239,5 +251,21 @@ class MainViewModel : ViewModel() {
 
     fun cancelReply() {
         currentReplyTo = null
+    }
+
+    fun getImageFromClipboard(image: Image) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val path = createTempFile(
+                directory = null,
+                prefix = "elysme_image",
+                suffix = ".png"
+            )
+
+            val file = path.toFile()
+
+            ImageIO.write(image.toBufferedImage(), "PNG", file)
+
+            currentFile = file
+        }
     }
 }
