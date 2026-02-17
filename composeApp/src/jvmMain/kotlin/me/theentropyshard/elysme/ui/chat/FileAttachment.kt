@@ -20,13 +20,7 @@ package me.theentropyshard.elysme.ui.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -47,12 +41,14 @@ const val MIDDLE_DOT = "•"
 @Composable
 fun FileAttachment(
     modifier: Modifier = Modifier,
-    message: DcMessage
+    message: DcMessage,
+    onClick: () -> Unit = {},
 ) = FileAttachment(
     modifier = modifier,
     name = message.fileName,
     mime = message.fileMime,
-    size = message.fileBytes
+    size = message.fileBytes,
+    onClick = onClick
 )
 
 @Composable
@@ -61,12 +57,13 @@ fun FileAttachment(
     name: String,
     mime: String? = null,
     size: Long? = null,
+    onClick: () -> Unit = {},
 ) {
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
             .background(color = MaterialTheme.colorScheme.inversePrimary)
-            .clickable { }
+            .clickable { onClick() }
             .padding(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

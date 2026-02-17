@@ -41,17 +41,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.gson.reflect.TypeToken
-import elysme.composeapp.generated.resources.Res
-import elysme.composeapp.generated.resources.copy24dp
-import elysme.composeapp.generated.resources.delete24dp
-import elysme.composeapp.generated.resources.edit24dp
-import elysme.composeapp.generated.resources.forwardmsg24dp
-import elysme.composeapp.generated.resources.read24dp
-import elysme.composeapp.generated.resources.reply24dp
-import elysme.composeapp.generated.resources.unread24dp
+import elysme.composeapp.generated.resources.*
 import io.kamel.core.utils.File
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.theentropyshard.elysme.deltachat.model.DcContact
 import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.model.DcReactions
@@ -61,10 +56,12 @@ import me.theentropyshard.elysme.ui.extensions.noRippleClickable
 import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
+import java.awt.Desktop
 import java.awt.datatransfer.StringSelection
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.io.File as JavaFile
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -84,6 +81,8 @@ fun ChatMessage(
 
     var menuVisible by remember { mutableStateOf(false) }
     var menuOffset by remember { mutableStateOf(Offset.Zero) }
+
+    val scope = rememberCoroutineScope()
 
     Row(
         modifier = modifier
@@ -258,9 +257,21 @@ fun ChatMessage(
                                 ImageAttachment(
                                     modifier = Modifier.align(Alignment.CenterHorizontally),
                                     message = message
-                                )
+                                ) {
+                                    scope.launch(Dispatchers.IO) {
+                                        if (Desktop.isDesktopSupported()) {
+                                            Desktop.getDesktop().open(JavaFile(message.file))
+                                        }
+                                    }
+                                }
                             } else {
-                                FileAttachment(message = message)
+                                FileAttachment(message = message) {
+                                    scope.launch(Dispatchers.IO) {
+                                        if (Desktop.isDesktopSupported()) {
+                                            Desktop.getDesktop().browse(JavaFile(message.file).parentFile.toURI())
+                                        }
+                                    }
+                                }
                             }
                         }
 

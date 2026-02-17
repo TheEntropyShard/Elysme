@@ -44,6 +44,7 @@ import kotlin.math.min
 fun ImageAttachment(
     modifier: Modifier = Modifier,
     message: DcMessage,
+    onClick: () -> Unit = {},
 ) {
     val aspectRatio = message.dimensionsWidth.toFloat() / message.dimensionsHeight.toFloat()
 
@@ -79,19 +80,11 @@ fun ImageAttachment(
         contentScale = ContentScale.Fit
     }
 
-    val scope = rememberCoroutineScope()
-
     Surface(
         modifier = modifier
             .size(newWidth, newHeight)
             .clip(RoundedCornerShape(8.dp))
-            .clickable {
-                scope.launch(Dispatchers.IO) {
-                    if (Desktop.isDesktopSupported()) {
-                        Desktop.getDesktop().open(java.io.File(message.file))
-                    }
-                }
-            },
+            .clickable { onClick() },
         color = MaterialTheme.colorScheme.surfaceContainerLow
     ) {
         NoMaxSizeImage(
