@@ -18,37 +18,36 @@
 
 package me.theentropyshard.elysme.ui.chat
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.AlignmentLine
-import androidx.compose.ui.layout.FirstBaseline
-import androidx.compose.ui.layout.LastBaseline
-import androidx.compose.ui.text.drawText
+import androidx.compose.ui.input.pointer.*
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.awtClipboard
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import elysme.composeapp.generated.resources.Res
+import elysme.composeapp.generated.resources.copy24dp
+import elysme.composeapp.generated.resources.delete24dp
 import elysme.composeapp.generated.resources.edit24dp
+import elysme.composeapp.generated.resources.forwardmsg24dp
 import elysme.composeapp.generated.resources.read24dp
+import elysme.composeapp.generated.resources.reply24dp
 import elysme.composeapp.generated.resources.unread24dp
 import io.kamel.core.utils.File
 import io.kamel.image.KamelImage
@@ -56,26 +55,25 @@ import io.kamel.image.asyncPainterResource
 import me.theentropyshard.elysme.deltachat.model.DcContact
 import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.model.DcReactions
-import me.theentropyshard.elysme.deltachat.request.GetContactRequest
 import me.theentropyshard.elysme.deltachat.request.GetContactsByIdsRequest
-import me.theentropyshard.elysme.deltachat.request.GetSingleMessageRequest
 import me.theentropyshard.elysme.ui.emoji.Emoji
 import me.theentropyshard.elysme.ui.extensions.noRippleClickable
 import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
+import java.awt.datatransfer.StringSelection
 import java.time.Instant
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ChatMessage(
     modifier: Modifier = Modifier,
     message: DcMessage,
     model: MainViewModel,
     onReply: (DcMessage) -> Unit,
-    onReplyClick: (Int) -> Unit
+    onQuoteClick: (Int) -> Unit
 ) {
     val displayName = message.sender?.displayName ?: "<unknown user>"
     val profileImage = message.sender?.profileImage
@@ -83,6 +81,9 @@ fun ChatMessage(
     val read = message.state == 28
 
     var hovered by remember { mutableStateOf(false) }
+
+    var menuVisible by remember { mutableStateOf(false) }
+    var menuOffset by remember { mutableStateOf(Offset.Zero) }
 
     Row(
         modifier = modifier
@@ -123,11 +124,58 @@ fun ChatMessage(
                 Spacer(modifier = Modifier.width(8.dp))
             }
 
+            val clipboard = LocalClipboard.current
+
             BoxWithConstraints {
+                MessageContextMenu(
+                    position = menuOffset,
+                    visible = menuVisible,
+                    onDismissRequest = { menuVisible = false },
+                    items = {
+                        listOf(
+                            MessageMenuItem(
+                                icon = Res.drawable.reply24dp,
+                                text = "Reply",
+                                description = "Reply to the message",
+                                onClick = { onReply(message) }
+                            ),
+                            MessageMenuItem(
+                                icon = Res.drawable.copy24dp,
+                                text = "Copy text",
+                                description = "Copy text of the message",
+                                onClick = { clipboard.awtClipboard?.setContents(StringSelection(message.text), null) }
+                            ),
+                            MessageMenuItem(
+                                icon = Res.drawable.forwardmsg24dp,
+                                text = "Forward",
+                                description = "Forward the message",
+                                onClick = {}
+                            ),
+                            MessageMenuItem(
+                                icon = Res.drawable.delete24dp,
+                                text = "Delete",
+                                description = "Delete the message",
+                                onClick = {}
+                            ),
+                        )
+                    }
+                )
+
                 Card(
                     modifier = Modifier
                         .widthIn(min = 200.dp, max = maxWidth * 0.85f)
-                        .width(IntrinsicSize.Max),
+                        .width(IntrinsicSize.Max)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                matcher = PointerMatcher.pointer(
+                                    pointerType = PointerType.Mouse,
+                                    button = PointerButton.Secondary
+                                )
+                            ) { offs ->
+                                menuOffset = offs
+                                menuVisible = true
+                            }
+                        },
                     colors = CardDefaults.cardColors(
                         containerColor = if (myself) {
                             MaterialTheme.colorScheme.primaryContainer
@@ -198,7 +246,7 @@ fun ChatMessage(
                                 color = message.quote.authorDisplayColor,
                                 name = message.quote.authorDisplayName,
                                 text = message.quote.text
-                            ) { onReplyClick(message.quote.messageId) }
+                            ) { onQuoteClick(message.quote.messageId) }
                         }
 
                         if (hasQuote && hasAttachment) {
