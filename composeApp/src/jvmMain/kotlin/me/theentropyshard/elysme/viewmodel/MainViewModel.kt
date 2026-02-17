@@ -35,6 +35,8 @@ import me.theentropyshard.elysme.deltachat.request.*
 import me.theentropyshard.elysme.deltachat.rpc.Rpc
 import me.theentropyshard.elysme.deltachat.rpc.RpcMethod
 import me.theentropyshard.elysme.ui.extensions.indexMap
+import kotlin.collections.plus
+import kotlin.collections.plusAssign
 
 sealed class Screen {
     object ImportBackupScreen : Screen()
@@ -115,7 +117,9 @@ class MainViewModel : ViewModel() {
                     val msgId = event.get("msgId").asInt
 
                     viewModelScope.launch {
-                        messages.getOrPut(chatId) { mutableStateListOf() } += DcMessageListItem(msgId)
+                        if (messages.containsKey(chatId)) {
+                            messages[chatId]!! += DcMessageListItem(msgId)
+                        }
                     }
                 }
 
@@ -124,11 +128,13 @@ class MainViewModel : ViewModel() {
                     val msgId = event.get("msgId").asInt
 
                     viewModelScope.launch {
-                        val messageList = messages.getOrPut(chatId) { mutableStateListOf() }
-                        val index = messageList.indexOfFirst { it.msgId == msgId }
+                        if (messages.containsKey(chatId)) {
+                            val messageList = messages.getOrPut(chatId) { mutableStateListOf() }
+                            val index = messageList.indexOfFirst { it.msgId == msgId }
 
-                        if (index != -1) {
-                            messageList[index] = DcMessageListItem(msgId)
+                            if (index != -1) {
+                                messageList[index] = DcMessageListItem(msgId)
+                            }
                         }
                     }
                 }
