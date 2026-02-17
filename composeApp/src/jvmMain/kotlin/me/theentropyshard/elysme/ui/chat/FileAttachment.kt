@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -49,6 +48,19 @@ const val MIDDLE_DOT = "•"
 fun FileAttachment(
     modifier: Modifier = Modifier,
     message: DcMessage
+) = FileAttachment(
+    modifier = modifier,
+    name = message.fileName,
+    mime = message.fileMime,
+    size = message.fileBytes
+)
+
+@Composable
+fun FileAttachment(
+    modifier: Modifier = Modifier,
+    name: String,
+    mime: String? = null,
+    size: Long? = null,
 ) {
     Row(
         modifier = modifier
@@ -61,7 +73,7 @@ fun FileAttachment(
         Icon(
             modifier = Modifier.size(36.dp),
             painter = painterResource(Res.drawable.file24dp),
-            contentDescription = "File: ${message.fileName}"
+            contentDescription = "File: $name"
         )
 
         Spacer(modifier = Modifier.width(4.dp))
@@ -71,7 +83,7 @@ fun FileAttachment(
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
-                text = message.fileName,
+                text = name,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontFamily = Fonts.googleSans(),
@@ -79,8 +91,14 @@ fun FileAttachment(
             )
 
             Text(
-                text = "${message.fileMime} $MIDDLE_DOT ${message.fileBytes} B",
-                fontFamily = Fonts.googleSans(),
+                text = buildString {
+                    mime?.let { append(mime) }
+
+                    if (mime != null && size != null) append(" $MIDDLE_DOT ")
+
+                    size?.let { append("$size B") }
+                },
+                fontFamily = Fonts.googleSans()
             )
         }
     }
