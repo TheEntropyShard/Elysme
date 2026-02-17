@@ -30,6 +30,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -44,9 +45,13 @@ import elysme.composeapp.generated.resources.close24dp
 import elysme.composeapp.generated.resources.send24dp
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
+import java.awt.Desktop
+import java.io.File
 
 @Composable
 fun ChatInput(
@@ -57,6 +62,7 @@ fun ChatInput(
 ) {
     val state = rememberTextFieldState()
     val requester = remember { FocusRequester() }
+    val scope = rememberCoroutineScope()
 
     val sendMessage: () -> Unit = {
         if (state.text.trim().isNotBlank() || model.currentFile != null) {
@@ -133,7 +139,13 @@ fun ChatInput(
                                 modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
                                 name = fileName,
                                 size = model.currentFile!!.length()
-                            )
+                            ) {
+                                scope.launch(Dispatchers.IO) {
+                                    if (Desktop.isDesktopSupported()) {
+                                        Desktop.getDesktop().browse(model.currentFile!!.parentFile.toURI())
+                                    }
+                                }
+                            }
                         }
 
                         IconButton(
