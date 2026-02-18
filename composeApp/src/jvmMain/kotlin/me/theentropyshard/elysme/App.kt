@@ -16,6 +16,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+@file:OptIn(ExperimentalSplitPaneApi::class)
+
 package me.theentropyshard.elysme
 
 import androidx.compose.animation.Crossfade
@@ -29,18 +31,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import me.theentropyshard.elysme.extensions.cursorForHorizontalResize
 import me.theentropyshard.elysme.ui.backup.ImportBackupView
 import me.theentropyshard.elysme.ui.chat.ChatList
 import me.theentropyshard.elysme.ui.chat.ChatView
-import me.theentropyshard.elysme.extensions.cursorForHorizontalResize
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import me.theentropyshard.elysme.viewmodel.Screen
 import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
-@OptIn(ExperimentalSplitPaneApi::class)
 @Composable
 @Preview
 fun App(modifier: Modifier = Modifier) {
@@ -60,50 +62,61 @@ fun App(modifier: Modifier = Modifier) {
             label = "Screen Crossfade"
         ) { screen ->
             when (screen) {
-                is Screen.ImportBackupScreen -> ImportBackupView { path ->
-                    model.importBackup(path)
-                }
+                is Screen.ImportBackupScreen -> ImportBackupView { model.importBackup(backupFilePath = it) }
+                is Screen.MainScreen -> MainScreen(modifier = Modifier.fillMaxSize(), model = model)
+            }
+        }
+    }
+}
 
-                is Screen.MainScreen -> HorizontalSplitPane(
-                    modifier = Modifier.fillMaxSize(),
-                    splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.25f)
-                ) {
-                    first(minSize = 256.dp) {
-                        ChatList(
-                            modifier = Modifier.fillMaxHeight(),
-                            model = model,
-                            onClick = { chat -> model.showChat(chat.id) }
-                        )
-                    }
+@Composable
+private fun MainScreen(
+    modifier: Modifier = Modifier,
+    model: MainViewModel
+) {
+    if (model.dialogVisible && model.currentChat != null) {
+        Dialog(onDismissRequest = { model.dialogVisible = false }) {
+            model.dialog.content(model)
+        }
+    }
 
-                    second(minSize = 512.dp) {
-                        ChatView(
-                            modifier = Modifier.fillMaxSize(),
-                            model = model
-                        )
-                    }
+    HorizontalSplitPane(
+        modifier = modifier,
+        splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.25f)
+    ) {
+        first(minSize = 256.dp) {
+            ChatList(
+                modifier = Modifier.fillMaxHeight(),
+                model = model,
+                onClick = { chat -> model.showChat(chat.id) }
+            )
+        }
 
-                    splitter {
-                        visiblePart {
-                            Box(
-                                modifier = Modifier
-                                    .width(1.dp)
-                                    .background(color = MaterialTheme.colorScheme.secondaryContainer)
-                                    .fillMaxHeight()
-                            )
-                        }
+        second(minSize = 512.dp) {
+            ChatView(
+                modifier = Modifier.fillMaxSize(),
+                model = model
+            )
+        }
 
-                        handle {
-                            Box(
-                                Modifier
-                                    .markAsHandle()
-                                    .cursorForHorizontalResize()
-                                    .width(3.dp)
-                                    .fillMaxHeight()
-                            )
-                        }
-                    }
-                }
+        splitter {
+            visiblePart {
+                Box(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .background(color = MaterialTheme.colorScheme.secondaryContainer)
+                        .fillMaxHeight()
+                )
+            }
+
+            handle {
+                Box(
+                    Modifier
+                        .markAsHandle()
+                        .cursorForHorizontalResize()
+                        .width(3.dp)
+                        .fillMaxHeight()
+                )
             }
         }
     }

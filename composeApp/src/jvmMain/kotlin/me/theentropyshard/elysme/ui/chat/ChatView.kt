@@ -59,7 +59,7 @@ fun ChatView(
                         .padding(start = 8.dp),
                     chat = currentChat
                 ) {
-
+                    model.dialogVisible = true
                 }
 
                 Box(

@@ -36,15 +36,23 @@ import me.theentropyshard.elysme.deltachat.rpc.Rpc
 import me.theentropyshard.elysme.deltachat.rpc.RpcMethod
 import me.theentropyshard.elysme.extensions.indexMap
 import me.theentropyshard.elysme.extensions.toBufferedImage
+import me.theentropyshard.elysme.ui.dialog.ChatInfoView
+import me.theentropyshard.elysme.ui.dialog.ChatMediaView
+import me.theentropyshard.elysme.ui.dialog.ProfileInfoView
 import java.awt.Image
 import java.io.File
 import javax.imageio.ImageIO
-import kotlin.collections.plusAssign
 import kotlin.io.path.createTempFile
 
 sealed class Screen {
     object ImportBackupScreen : Screen()
     object MainScreen : Screen()
+}
+
+sealed class ElysmeDialog(val content: @Composable (MainViewModel) -> Unit) {
+    object ChatInfoDialog : ElysmeDialog(::ChatInfoView)
+    object ChatMediaDialog : ElysmeDialog(::ChatMediaView)
+    object ProfileInfoDialog : ElysmeDialog(::ProfileInfoView)
 }
 
 class MainViewModel : ViewModel() {
@@ -61,6 +69,9 @@ class MainViewModel : ViewModel() {
 
     val chats = mutableStateListOf<DcChatListItem>()
     val messages = mutableStateMapOf<Int, SnapshotStateList<DcMessageListItem>>()
+
+    var dialogVisible by mutableStateOf(false)
+    var dialog by mutableStateOf(ElysmeDialog.ChatInfoDialog)
 
     init {
         rpc.start()
@@ -202,7 +213,8 @@ class MainViewModel : ViewModel() {
                         setAddDaymarker(true)
                     }
 
-                    val messageListItems = Gson().fromJson(rpc.send(messageListItemsRequest).result,
+                    val messageListItems = Gson().fromJson(
+                        rpc.send(messageListItemsRequest).result,
                         object : TypeToken<List<DcMessageListItem>>() {})
 
                     viewModelScope.launch {
