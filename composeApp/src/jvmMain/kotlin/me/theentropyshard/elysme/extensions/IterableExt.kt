@@ -16,21 +16,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.theentropyshard.elysme.ui.extensions
+package me.theentropyshard.elysme.extensions
 
-import java.awt.Image
-import java.awt.image.BufferedImage
-
-fun Image.toBufferedImage(): BufferedImage {
-    val image = BufferedImage(
-        this.getWidth(null),
-        this.getHeight(null),
-        BufferedImage.TYPE_INT_ARGB
-    )
-
-    val g2d = image.createGraphics()
-    g2d.drawImage(this, 0, 0, null)
-    g2d.dispose()
-
-    return image
-}
+fun <T> Iterable<T>.indexMap(): Map<T, Int> = this.mapIndexed { i, v -> Pair(v, i) }.toMap()

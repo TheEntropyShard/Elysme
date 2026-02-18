@@ -34,14 +34,12 @@ import me.theentropyshard.elysme.deltachat.model.DcMessageListItem
 import me.theentropyshard.elysme.deltachat.request.*
 import me.theentropyshard.elysme.deltachat.rpc.Rpc
 import me.theentropyshard.elysme.deltachat.rpc.RpcMethod
-import me.theentropyshard.elysme.ui.extensions.indexMap
-import me.theentropyshard.elysme.ui.extensions.toBufferedImage
+import me.theentropyshard.elysme.extensions.indexMap
+import me.theentropyshard.elysme.extensions.toBufferedImage
 import java.awt.Image
 import java.io.File
 import javax.imageio.ImageIO
-import kotlin.collections.plus
 import kotlin.collections.plusAssign
-import kotlin.io.path.Path
 import kotlin.io.path.createTempFile
 
 sealed class Screen {

@@ -27,22 +27,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import me.theentropyshard.elysme.ui.backup.ImportBackupView
 import me.theentropyshard.elysme.ui.chat.ChatList
 import me.theentropyshard.elysme.ui.chat.ChatView
-import me.theentropyshard.elysme.ui.extensions.cursorForHorizontalResize
-import me.theentropyshard.elysme.ui.theme.ElysmeTheme
+import me.theentropyshard.elysme.extensions.cursorForHorizontalResize
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import me.theentropyshard.elysme.viewmodel.Screen
 import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
-import java.awt.Cursor
 
 @OptIn(ExperimentalSplitPaneApi::class)
 @Composable

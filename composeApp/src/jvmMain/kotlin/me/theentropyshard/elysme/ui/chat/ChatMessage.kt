@@ -52,7 +52,7 @@ import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.model.DcReactions
 import me.theentropyshard.elysme.deltachat.request.GetContactsByIdsRequest
 import me.theentropyshard.elysme.ui.emoji.Emoji
-import me.theentropyshard.elysme.ui.extensions.noRippleClickable
+import me.theentropyshard.elysme.extensions.noRippleClickable
 import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource

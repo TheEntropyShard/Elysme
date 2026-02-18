@@ -31,7 +31,7 @@ import elysme.composeapp.generated.resources.Res
 import elysme.composeapp.generated.resources.morevert24dp
 import elysme.composeapp.generated.resources.search24dp
 import me.theentropyshard.elysme.deltachat.model.DcChat
-import me.theentropyshard.elysme.ui.extensions.noRippleClickable
+import me.theentropyshard.elysme.extensions.noRippleClickable
 import me.theentropyshard.elysme.ui.theme.Fonts
 import org.jetbrains.compose.resources.painterResource
 
