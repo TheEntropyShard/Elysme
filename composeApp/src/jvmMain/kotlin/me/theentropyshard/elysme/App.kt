@@ -35,6 +35,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import me.theentropyshard.elysme.ui.backup.ImportBackupView
 import me.theentropyshard.elysme.ui.chat.ChatList
 import me.theentropyshard.elysme.ui.chat.ChatView
+import me.theentropyshard.elysme.ui.extensions.cursorForHorizontalResize
 import me.theentropyshard.elysme.ui.theme.ElysmeTheme
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import me.theentropyshard.elysme.viewmodel.Screen
@@ -111,6 +112,3 @@ fun App(modifier: Modifier = Modifier) {
         }
     }
 }
-
-private fun Modifier.cursorForHorizontalResize(): Modifier =
-    pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
