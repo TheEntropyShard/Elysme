@@ -1,0 +1,6 @@
+-keep class com.google.gson.JsonElement { *; }
+-keep class com.google.gson.JsonArray { *; }
+-keep class io.kamel.image.config.DefaultKamelConfigService { *; }
+-keep class io.ktor.client.engine.cio.CIOEngineContainer { *; }
+-keep class me.theentropyshard.elysme.deltachat.model.** { *; }
+-keep class net.fellbaum.** { *; }

@@ -45,5 +45,9 @@ compose.desktop {
             packageName = "me.theentropyshard.elysme"
             packageVersion = "1.0.0"
         }
+
+        buildTypes.release {
+            proguard.configurationFiles = files("proguard.txt")
+        }
     }
 }
