@@ -56,9 +56,6 @@ class MainViewModel : ViewModel() {
     var currentAccountId = 0
     var currentChat by mutableStateOf<DcChat?>(null)
 
-    var currentChatTitle by mutableStateOf("")
-    var currentChatMembers by mutableStateOf(0)
-
     var currentReplyTo by mutableStateOf<DcMessage?>(null)
     var currentFile by mutableStateOf<File?>(null)
 
@@ -195,9 +192,6 @@ class MainViewModel : ViewModel() {
             }
 
             val chat = Gson().fromJson(rpc.send(chatRequest).result, DcChat::class.java)
-
-            currentChatTitle = chat.name
-            currentChatMembers = chat.contactIds.size
 
             if (messages.containsKey(id)) {
                 currentChat = chat

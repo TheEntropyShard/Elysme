@@ -49,15 +49,18 @@ fun ChatView(
             NoChatView(modifier = Modifier.fillMaxSize())
         } else {
             Column {
-                val messages = model.messages[model.currentChat!!.id]
+                val currentChat = model.currentChat!!
+
+                val messages = model.messages[currentChat.id]
 
                 ChatHeader(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 8.dp),
-                    title = model.currentChatTitle,
-                    memberCount = model.currentChatMembers
-                )
+                    chat = currentChat
+                ) {
+
+                }
 
                 Box(
                     modifier = Modifier
