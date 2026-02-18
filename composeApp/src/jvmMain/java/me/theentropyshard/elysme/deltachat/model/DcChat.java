@@ -24,7 +24,6 @@ public class DcChat {
     private String chatType;
     private String color;
     private int[] contactIds;
-    private DcContact[] contacts;
     private int ephemeralTimer;
     private int freshMessageCounter;
     private int id;
@@ -66,10 +65,6 @@ public class DcChat {
 
     public int[] getContactIds() {
         return this.contactIds;
-    }
-
-    public DcContact[] getContacts() {
-        return this.contacts;
     }
 
     public int getEphemeralTimer() {
