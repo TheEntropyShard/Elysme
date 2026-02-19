@@ -90,7 +90,7 @@ fun ProfileInfoView(model: MainViewModel) {
             )
 
             Text(
-                text = contact.address,
+                text = contact.status,
                 fontFamily = Fonts.googleSans()
             )
         }
