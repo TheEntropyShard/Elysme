@@ -201,7 +201,7 @@ private fun ChatInputBase(
     placeholder: @Composable () -> Unit = {},
 ) {
     Column(
-        modifier = modifier.animateContentSize(),
+        modifier = modifier.animateContentSize(alignment = Alignment.BottomStart),
         verticalArrangement = Arrangement.Center
     ) {
         quoteView?.invoke(this)
