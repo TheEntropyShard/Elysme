@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import elysme.composeapp.generated.resources.Res
 import elysme.composeapp.generated.resources.morevert24dp
+import elysme.composeapp.generated.resources.mosaic24dp
 import elysme.composeapp.generated.resources.search24dp
 import me.theentropyshard.elysme.deltachat.model.DcChat
 import me.theentropyshard.elysme.extensions.noRippleClickable
@@ -39,7 +40,8 @@ import org.jetbrains.compose.resources.painterResource
 fun ChatHeader(
     modifier: Modifier = Modifier,
     chat: DcChat,
-    onClick: () -> Unit
+    onNameClick: () -> Unit,
+    onMediaClick: () -> Unit,
 ) {
     Row(
         modifier = modifier.padding(2.dp),
@@ -48,7 +50,7 @@ fun ChatHeader(
         Column(
             modifier = Modifier
                 .pointerHoverIcon(icon = PointerIcon.Hand)
-                .noRippleClickable(onClick),
+                .noRippleClickable(onNameClick),
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
@@ -71,6 +73,15 @@ fun ChatHeader(
         }
 
         Spacer(modifier = Modifier.weight(1f))
+
+        IconButton(
+            onClick = onMediaClick
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.mosaic24dp),
+                contentDescription = "Show media in ${chat.name}"
+            )
+        }
 
         IconButton(
             onClick = {}

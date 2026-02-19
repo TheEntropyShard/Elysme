@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.awtClipboard
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import me.theentropyshard.elysme.ui.theme.Fonts
+import me.theentropyshard.elysme.viewmodel.ElysmeDialog
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import java.awt.Image
 import java.awt.datatransfer.DataFlavor
@@ -57,10 +58,16 @@ fun ChatView(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 8.dp),
-                    chat = currentChat
-                ) {
-                    model.dialogVisible = true
-                }
+                    chat = currentChat,
+                    onNameClick = {
+                        model.dialog = ElysmeDialog.ChatInfoDialog
+                        model.dialogVisible = true
+                    },
+                    onMediaClick = {
+                        model.dialog = ElysmeDialog.ChatMediaDialog
+                        model.dialogVisible = true
+                    }
+                )
 
                 Box(
                     modifier = Modifier

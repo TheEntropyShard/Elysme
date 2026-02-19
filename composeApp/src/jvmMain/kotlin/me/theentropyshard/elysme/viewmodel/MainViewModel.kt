@@ -71,7 +71,7 @@ class MainViewModel : ViewModel() {
     val messages = mutableStateMapOf<Int, SnapshotStateList<DcMessageListItem>>()
 
     var dialogVisible by mutableStateOf(false)
-    var dialog by mutableStateOf(ElysmeDialog.ChatInfoDialog)
+    var dialog by mutableStateOf<ElysmeDialog>(ElysmeDialog.ChatInfoDialog)
 
     init {
         rpc.start()
