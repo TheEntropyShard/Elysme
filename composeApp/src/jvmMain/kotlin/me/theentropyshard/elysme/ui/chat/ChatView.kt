@@ -21,6 +21,8 @@ package me.theentropyshard.elysme.ui.chat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.insert
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -94,8 +96,11 @@ fun ChatView(
 
                     val clipboard = LocalClipboard.current
 
+                    val state = rememberTextFieldState()
+
                     ChatInput(
                         modifier = Modifier.fillMaxWidth(),
+                        state = state,
                         model = model,
                         onAttachClick = {},
                         onPaste = {
@@ -105,6 +110,14 @@ fun ChatView(
                                 if (contents != null) {
                                     for (flavor in contents.transferDataFlavors) {
                                         when {
+                                            flavor.equals(DataFlavor.stringFlavor) -> {
+                                                val text = contents.getTransferData(DataFlavor.stringFlavor) as String
+
+                                                state.edit {
+                                                    insert(index = state.selection.end, text = text)
+                                                }
+                                            }
+
                                             flavor.equals(DataFlavor.imageFlavor) -> {
                                                 val image = contents.getTransferData(DataFlavor.imageFlavor) as Image
 

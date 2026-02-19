@@ -25,7 +25,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.delete
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,16 +50,15 @@ import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
 import java.awt.Desktop
-import java.io.File
 
 @Composable
 fun ChatInput(
     modifier: Modifier = Modifier,
+    state: TextFieldState,
     model: MainViewModel,
     onAttachClick: () -> Unit,
     onPaste: () -> Unit,
 ) {
-    val state = rememberTextFieldState()
     val requester = remember { FocusRequester() }
     val scope = rememberCoroutineScope()
 
