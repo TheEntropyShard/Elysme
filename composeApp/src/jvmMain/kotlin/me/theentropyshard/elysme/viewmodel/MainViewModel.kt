@@ -29,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.theentropyshard.elysme.deltachat.model.DcChat
 import me.theentropyshard.elysme.deltachat.model.DcChatListItem
+import me.theentropyshard.elysme.deltachat.model.DcContact
 import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.model.DcMessageListItem
 import me.theentropyshard.elysme.deltachat.request.*
@@ -61,6 +62,7 @@ class MainViewModel : ViewModel() {
 
     var currentAccountId = 0
     var currentChat by mutableStateOf<DcChat?>(null)
+    var currentContact by mutableStateOf<DcContact?>(null)
 
     var currentReplyTo by mutableStateOf<DcMessage?>(null)
     var currentFile by mutableStateOf<File?>(null)

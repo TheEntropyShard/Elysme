@@ -55,6 +55,7 @@ import io.kamel.image.asyncPainterResource
 import me.theentropyshard.elysme.deltachat.model.DcContact
 import me.theentropyshard.elysme.deltachat.rpc.RpcMethod
 import me.theentropyshard.elysme.ui.theme.Fonts
+import me.theentropyshard.elysme.viewmodel.ElysmeDialog
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
 
@@ -125,7 +126,17 @@ fun ChatInfoView(model: MainViewModel) {
 
                 LazyColumn {
                     items(ArrayList(contactsObject.values)) {
-                        ContactListItem(contact = it)
+                        ContactListItem(
+                            contact = it,
+                            onClick = {
+                                model.currentContact = it
+                                model.dialog = ElysmeDialog.ProfileInfoDialog
+                                model.dialogVisible = true
+                            },
+                            onClickRemove = {
+
+                            }
+                        )
                     }
                 }
             }
@@ -136,13 +147,15 @@ fun ChatInfoView(model: MainViewModel) {
 @Composable
 private fun ContactListItem(
     modifier: Modifier = Modifier,
-    contact: DcContact
+    contact: DcContact,
+    onClick: () -> Unit,
+    onClickRemove: () -> Unit
 ) {
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
             .fillMaxWidth()
-            .clickable {}
+            .clickable { onClick() }
             .minimumInteractiveComponentSize(),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -180,7 +193,7 @@ private fun ContactListItem(
         if (contact.displayName != "Me") {
             Spacer(modifier = Modifier.weight(1f))
 
-            IconButton(onClick = {}) {
+            IconButton(onClick = onClickRemove) {
                 Icon(
                     painter = painterResource(Res.drawable.close24dp),
                     contentDescription = "Remove contact"
