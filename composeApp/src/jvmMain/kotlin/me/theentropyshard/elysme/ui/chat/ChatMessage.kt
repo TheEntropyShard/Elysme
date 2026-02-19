@@ -26,6 +26,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,10 +53,9 @@ import me.theentropyshard.elysme.deltachat.model.DcContact
 import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.model.DcReactions
 import me.theentropyshard.elysme.deltachat.request.GetContactsByIdsRequest
-import me.theentropyshard.elysme.ui.emoji.Emoji
 import me.theentropyshard.elysme.extensions.noRippleClickable
+import me.theentropyshard.elysme.ui.emoji.Emoji
 import me.theentropyshard.elysme.ui.theme.Fonts
-import me.theentropyshard.elysme.viewmodel.ElysmeDialog
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
 import java.awt.Desktop
@@ -288,10 +288,12 @@ fun ChatMessage(
                         }
 
                         if (hasText) {
-                            Text(
-                                text = message.text,
-                                fontFamily = Fonts.googleSans()
-                            )
+                            SelectionContainer {
+                                Text(
+                                    text = message.text,
+                                    fontFamily = Fonts.googleSans()
+                                )
+                            }
                         } else if (hasAttachment) {
                             Spacer(modifier = Modifier.height(8.dp))
                         }
