@@ -21,6 +21,7 @@ package me.theentropyshard.elysme.ui.chat
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -54,6 +55,7 @@ import me.theentropyshard.elysme.deltachat.request.GetContactsByIdsRequest
 import me.theentropyshard.elysme.ui.emoji.Emoji
 import me.theentropyshard.elysme.extensions.noRippleClickable
 import me.theentropyshard.elysme.ui.theme.Fonts
+import me.theentropyshard.elysme.viewmodel.ElysmeDialog
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
 import java.awt.Desktop
@@ -106,13 +108,20 @@ fun ChatMessage(
             if (!myself) {
                 if (profileImage != null) {
                     KamelImage(
-                        modifier = Modifier.size(32.dp).clip(CircleShape),
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .pointerHoverIcon(icon = PointerIcon.Hand)
+                            .clickable { model.showProfileDialog(message.sender) },
                         resource = { asyncPainterResource(data = File(profileImage)) },
                         contentDescription = "Avatar of user $displayName",
                     )
                 } else {
                     Surface(
-                        modifier = Modifier.size(32.dp),
+                        modifier = Modifier
+                            .size(32.dp)
+                            .pointerHoverIcon(icon = PointerIcon.Hand)
+                            .clickable { model.showProfileDialog(message.sender) },
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.primaryContainer,
                     ) {
@@ -193,6 +202,9 @@ fun ChatMessage(
                         if (!myself) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
+                                    modifier = Modifier
+                                        .pointerHoverIcon(icon = PointerIcon.Hand)
+                                        .noRippleClickable { model.showProfileDialog(message.sender) },
                                     text = displayName,
                                     fontFamily = Fonts.googleSans(),
                                     fontWeight = FontWeight.Medium,
@@ -200,7 +212,7 @@ fun ChatMessage(
                                         Color(0xFF000000 or message.sender.color.substring(1).toLong(16))
                                     } else {
                                         Color.Unspecified
-                                    }
+                                    },
                                 )
 
                                 if (hovered) {

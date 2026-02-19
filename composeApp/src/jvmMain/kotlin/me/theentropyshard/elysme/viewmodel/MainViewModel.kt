@@ -274,4 +274,10 @@ class MainViewModel : ViewModel() {
             currentFile = file
         }
     }
+
+    fun showProfileDialog(contact: DcContact) {
+        currentContact = contact
+        dialog = ElysmeDialog.ProfileInfoDialog
+        dialogVisible = true
+    }
 }
