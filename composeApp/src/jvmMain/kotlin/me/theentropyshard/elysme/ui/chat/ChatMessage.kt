@@ -54,7 +54,6 @@ import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.model.DcReactions
 import me.theentropyshard.elysme.deltachat.request.GetContactsByIdsRequest
 import me.theentropyshard.elysme.extensions.noRippleClickable
-import me.theentropyshard.elysme.ui.emoji.Emoji
 import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
@@ -418,10 +417,7 @@ private fun ReactionItem(
             .padding(3.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Emoji(
-            modifier = Modifier.size(20.dp),
-            emoji = emoji
-        )
+        Text(text = emoji)
 
         Spacer(modifier = Modifier.width(2.dp))
 
