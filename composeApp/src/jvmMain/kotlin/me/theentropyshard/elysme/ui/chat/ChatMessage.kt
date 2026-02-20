@@ -62,7 +62,6 @@ import java.awt.datatransfer.StringSelection
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.io.File as JavaFile
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -71,7 +70,9 @@ fun ChatMessage(
     message: DcMessage,
     model: MainViewModel,
     onReply: (DcMessage) -> Unit,
-    onQuoteClick: (Int) -> Unit
+    onQuoteClick: (Int) -> Unit,
+    onImageClick: () -> Unit,
+    onFileClick: () -> Unit,
 ) {
     val displayName = message.sender?.displayName ?: "<unknown user>"
     val profileImage = message.sender?.profileImage
@@ -82,8 +83,6 @@ fun ChatMessage(
 
     var menuVisible by remember { mutableStateOf(false) }
     var menuOffset by remember { mutableStateOf(Offset.Zero) }
-
-    val scope = rememberCoroutineScope()
 
     Row(
         modifier = modifier
@@ -267,22 +266,11 @@ fun ChatMessage(
                             if (message.fileMime.startsWith("image/")) {
                                 ImageAttachment(
                                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                                    message = message
-                                ) {
-                                    scope.launch(Dispatchers.IO) {
-                                        if (Desktop.isDesktopSupported()) {
-                                            Desktop.getDesktop().open(JavaFile(message.file))
-                                        }
-                                    }
-                                }
+                                    message = message,
+                                    onClick = onImageClick
+                                )
                             } else {
-                                FileAttachment(message = message) {
-                                    scope.launch(Dispatchers.IO) {
-                                        if (Desktop.isDesktopSupported()) {
-                                            Desktop.getDesktop().browse(JavaFile(message.file).parentFile.toURI())
-                                        }
-                                    }
-                                }
+                                FileAttachment(message = message, onClick = onFileClick)
                             }
                         }
 

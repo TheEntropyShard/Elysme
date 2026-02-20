@@ -41,12 +41,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachReversed
 import elysme.composeapp.generated.resources.Res
 import elysme.composeapp.generated.resources.forward24dp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.model.DcMessageListItem
 import me.theentropyshard.elysme.deltachat.request.GetSingleMessageRequest
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
+import java.awt.Desktop
+import java.io.File as JavaFile
 
 @Composable
 fun ChatBody(
@@ -115,16 +118,35 @@ fun ChatBody(
                                             foreground = MaterialTheme.colorScheme.onSecondaryContainer
                                         )
                                     } else {
-                                        ChatMessage(message = msg, model = model, onReply = onReply) { id ->
-                                            scope.launch {
-                                                val index =
-                                                    messages.size - messages.indexOfFirst { msg -> msg.msgId == id } - 1
+                                        ChatMessage(
+                                            message = msg,
+                                            model = model,
+                                            onReply = onReply,
+                                            onQuoteClick = { id ->
+                                                scope.launch {
+                                                    val index =
+                                                        messages.size - messages.indexOfFirst { msg -> msg.msgId == id } - 1
 
-                                                if (index >= 0 && index < messages.size) {
-                                                    state.animateScrollToItem(index)
+                                                    if (index >= 0 && index < messages.size) {
+                                                        state.animateScrollToItem(index)
+                                                    }
+                                                }
+                                            },
+                                            onImageClick = {
+                                                scope.launch(Dispatchers.IO) {
+                                                    if (Desktop.isDesktopSupported()) {
+                                                        Desktop.getDesktop().open(JavaFile(msg.file))
+                                                    }
+                                                }
+                                            },
+                                            onFileClick = {
+                                                scope.launch(Dispatchers.IO) {
+                                                    if (Desktop.isDesktopSupported()) {
+                                                        Desktop.getDesktop().browse(JavaFile(msg.file).parentFile.toURI())
+                                                    }
                                                 }
                                             }
-                                        }
+                                        )
                                     }
                                 }
                             }
