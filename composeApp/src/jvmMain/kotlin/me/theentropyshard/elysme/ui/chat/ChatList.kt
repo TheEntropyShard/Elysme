@@ -18,12 +18,21 @@
 
 package me.theentropyshard.elysme.ui.chat
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import elysme.composeapp.generated.resources.Res
+import elysme.composeapp.generated.resources.chat24dp
 import me.theentropyshard.elysme.deltachat.model.DcChatListItem
 import me.theentropyshard.elysme.viewmodel.MainViewModel
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun ChatList(
@@ -31,12 +40,26 @@ fun ChatList(
     model: MainViewModel,
     onClick: (DcChatListItem) -> Unit
 ) {
-    LazyColumn(modifier = modifier) {
-        items(model.chats) {
-            ChatListItem(
-                chat = it,
-                selected = model.currentChat != null && model.currentChat!!.id == it.id,
-                onClick = { onClick(it) }
+    Box(modifier = modifier) {
+        LazyColumn(modifier = Modifier.fillMaxHeight()) {
+            items(model.chats) {
+                ChatListItem(
+                    chat = it,
+                    selected = model.currentChat != null && model.currentChat!!.id == it.id,
+                    onClick = { onClick(it) }
+                )
+            }
+        }
+
+        FloatingActionButton(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 16.dp, bottom = 16.dp),
+            onClick = {}
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.chat24dp),
+                contentDescription = ""
             )
         }
     }
