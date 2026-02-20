@@ -47,8 +47,6 @@ import elysme.composeapp.generated.resources.*
 import io.kamel.core.utils.File
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import me.theentropyshard.elysme.deltachat.model.DcContact
 import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.model.DcReactions
@@ -57,11 +55,13 @@ import me.theentropyshard.elysme.extensions.noRippleClickable
 import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
-import java.awt.Desktop
 import java.awt.datatransfer.StringSelection
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+
+private val MessageShape = RoundedCornerShape(12.dp)
+private val MessagePadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 0.dp, top = 4.dp)
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -79,10 +79,18 @@ fun ChatMessage(
     val myself = displayName == "Me"
     val read = message.state == 28
 
+    val senderColor = if (message.sender != null) {
+        Color(0xFF000000 or message.sender.color.substring(1).toLong(16))
+    } else {
+        Color.Unspecified
+    }
+
     var hovered by remember { mutableStateOf(false) }
 
     var menuVisible by remember { mutableStateOf(false) }
     var menuOffset by remember { mutableStateOf(Offset.Zero) }
+
+    val googleSans = Fonts.googleSans()
 
     Row(
         modifier = modifier
@@ -121,7 +129,7 @@ fun ChatMessage(
                             .pointerHoverIcon(icon = PointerIcon.Hand)
                             .clickable { model.showProfileDialog(message.sender) },
                         shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primaryContainer,
+                        color = senderColor,
                     ) {
 
                     }
@@ -130,9 +138,9 @@ fun ChatMessage(
                 Spacer(modifier = Modifier.width(8.dp))
             }
 
-            val clipboard = LocalClipboard.current
-
             BoxWithConstraints {
+                val clipboard = LocalClipboard.current
+
                 MessageContextMenu(
                     position = menuOffset,
                     visible = menuVisible,
@@ -167,35 +175,29 @@ fun ChatMessage(
                     }
                 )
 
-                Card(
-                    modifier = Modifier
-                        .widthIn(min = 200.dp, max = maxWidth * 0.85f)
-                        .width(IntrinsicSize.Max)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                matcher = PointerMatcher.pointer(
-                                    pointerType = PointerType.Mouse,
-                                    button = PointerButton.Secondary
-                                )
-                            ) { offs ->
-                                menuOffset = offs
-                                menuVisible = true
-                            }
-                        },
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (myself) {
-                            MaterialTheme.colorScheme.primaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.secondaryContainer
-                        }
-                    )
-                ) {
+                val myselfColor = MaterialTheme.colorScheme.primaryContainer
+                val otherColor = MaterialTheme.colorScheme.primaryContainer
+                val backgroundColor = if (myself) myselfColor else otherColor
+
+                CompositionLocalProvider(LocalContentColor provides contentColorFor(backgroundColor)) {
                     Column(
-                        modifier = if (myself) {
-                            Modifier.padding(start = 8.dp, end = 8.dp, bottom = 0.dp, top = 8.dp)
-                        } else {
-                            Modifier.padding(start = 8.dp, end = 8.dp, bottom = 0.dp, top = 4.dp)
-                        }
+                        modifier = Modifier
+                            .clip(MessageShape)
+                            .widthIn(min = 200.dp, max = maxWidth * 0.85f)
+                            .width(IntrinsicSize.Max)
+                            .background(color = backgroundColor)
+                            .padding(MessagePadding)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    matcher = PointerMatcher.pointer(
+                                        pointerType = PointerType.Mouse,
+                                        button = PointerButton.Secondary
+                                    )
+                                ) { offs ->
+                                    menuOffset = offs
+                                    menuVisible = true
+                                }
+                            },
                     ) {
                         if (!myself) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -204,13 +206,9 @@ fun ChatMessage(
                                         .pointerHoverIcon(icon = PointerIcon.Hand)
                                         .noRippleClickable { model.showProfileDialog(message.sender) },
                                     text = displayName,
-                                    fontFamily = Fonts.googleSans(),
+                                    fontFamily = googleSans,
                                     fontWeight = FontWeight.Medium,
-                                    color = if (message.sender != null) {
-                                        Color(0xFF000000 or message.sender.color.substring(1).toLong(16))
-                                    } else {
-                                        Color.Unspecified
-                                    },
+                                    color = senderColor,
                                 )
 
                                 if (hovered) {
@@ -237,12 +235,10 @@ fun ChatMessage(
                                             .noRippleClickable { onReply(message) },
                                         text = "Reply",
                                         textDecoration = if (replyHovered) TextDecoration.Underline else null,
-                                        fontFamily = Fonts.googleSans()
+                                        fontFamily = googleSans
                                     )
                                 }
                             }
-
-                            Spacer(modifier = Modifier.height(8.dp))
                         }
 
                         val hasQuote = message.hasQuote()
@@ -250,12 +246,15 @@ fun ChatMessage(
                         val hasAttachment = message.hasAttachment()
 
                         if (hasQuote) {
+                            if (myself) Spacer(modifier = Modifier.height(4.dp))
+
                             QuoteView(
                                 modifier = Modifier.fillMaxWidth(),
                                 color = message.quote.authorDisplayColor,
                                 name = message.quote.authorDisplayName,
-                                text = message.quote.text
-                            ) { onQuoteClick(message.quote.messageId) }
+                                text = message.quote.text,
+                                onClick = { onQuoteClick(message.quote.messageId) }
+                            )
                         }
 
                         if (hasQuote && hasAttachment) {
@@ -263,6 +262,8 @@ fun ChatMessage(
                         }
 
                         if (hasAttachment) {
+                            if (myself && !hasQuote) Spacer(modifier = Modifier.height(4.dp))
+
                             if (message.fileMime.startsWith("image/")) {
                                 ImageAttachment(
                                     modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -278,7 +279,7 @@ fun ChatMessage(
                             SelectionContainer {
                                 Text(
                                     text = message.text,
-                                    fontFamily = Fonts.googleSans()
+                                    fontFamily = googleSans
                                 )
                             }
                         } else if (hasAttachment) {
@@ -313,7 +314,7 @@ fun ChatMessage(
                                     text = FORMATTER.format(
                                         Instant.ofEpochSecond(message.timestamp).atZone(ZoneId.systemDefault())
                                     ),
-                                    fontFamily = Fonts.googleSans(),
+                                    fontFamily = googleSans,
                                     fontSize = 12.sp,
                                     lineHeight = 12.sp
                                 )
