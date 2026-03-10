@@ -21,22 +21,18 @@ package me.theentropyshard.elysme.ui.chat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.kamel.core.utils.File
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
 import me.theentropyshard.elysme.deltachat.model.DcChatListItem
+import me.theentropyshard.elysme.extensions.toColor
 import me.theentropyshard.elysme.ui.components.FreshMessageCounter
+import me.theentropyshard.elysme.ui.components.ProfileImage
 import me.theentropyshard.elysme.ui.components.TimeText
 import me.theentropyshard.elysme.ui.theme.Fonts
 import java.time.temporal.ChronoUnit
@@ -54,21 +50,13 @@ fun ChatListItem(
             .clickable { onClick() }
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
-        if (chat.avatarPath != null) {
-            KamelImage(
-                modifier = Modifier.size(48.dp).clip(CircleShape),
-                resource = { asyncPainterResource(data = File(chat.avatarPath), filterQuality = FilterQuality.High) },
-                contentDescription = "Chat profile image - ${chat.name}",
-            )
-        } else {
-            Surface(
-                modifier = Modifier.size(48.dp),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer,
-            ) {
-
-            }
-        }
+        ProfileImage(
+            profileImage = chat.avatarPath,
+            contentDescription = "Chat profile image - ${chat.name}",
+            size = 48.dp,
+            displayName = chat.name,
+            color = chat.color.toColor()
+        )
 
         Spacer(modifier = Modifier.width(8.dp))
 
