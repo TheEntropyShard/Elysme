@@ -27,7 +27,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -43,7 +46,7 @@ public class Rpc {
     private Thread writeThread;
     private Thread eventThread;
     private BlockingDeque<RpcRequest> outboundRequestsQueue;
-    private Map<Integer, BlockingDeque<JsonObject>> eventQueues;
+    private Set<RpcEventListener> listeners;
     private Map<Integer, BlockingDeque<RpcResponse>> responseMap;
     private AtomicBoolean running;
     private AtomicInteger idCounter;
@@ -68,7 +71,7 @@ public class Rpc {
         }
 
         this.outboundRequestsQueue = new LinkedBlockingDeque<>();
-        this.eventQueues = new ConcurrentHashMap<>();
+        this.listeners = Collections.synchronizedSet(new HashSet<>());
         this.responseMap = new ConcurrentHashMap<>();
 
         this.idCounter = new AtomicInteger(1);
@@ -147,17 +150,14 @@ public class Rpc {
             RpcResponse r = this.send(RpcMethod.get_next_event.makeRequest(this.idCounter.getAndIncrement()));
             JsonObject event = r.getResult().getAsJsonObject();
             int accountId = event.get("contextId").getAsInt();
-            BlockingDeque<JsonObject> queue = this.eventQueues.computeIfAbsent(accountId, i -> new LinkedBlockingDeque<>());
-            queue.offer(event.get("event").getAsJsonObject());
+            for (RpcEventListener listener : this.listeners) {
+                listener.onEvent(accountId, event.get("event").getAsJsonObject());
+            }
         }
     }
 
-    public JsonObject waitForEvent(int accountId) {
-        try {
-            return this.eventQueues.computeIfAbsent(accountId, i -> new LinkedBlockingDeque<>()).take();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+    public void addListener(RpcEventListener listener) {
+        this.listeners.add(listener);
     }
 
     public AtomicBoolean getRunning() {
