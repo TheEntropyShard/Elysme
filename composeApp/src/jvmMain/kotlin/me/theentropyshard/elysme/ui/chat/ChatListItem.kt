@@ -81,6 +81,8 @@ fun ChatListItem(
                     text = chat.name,
                     fontWeight = FontWeight.Medium,
                     fontFamily = Fonts.googleSans(),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
