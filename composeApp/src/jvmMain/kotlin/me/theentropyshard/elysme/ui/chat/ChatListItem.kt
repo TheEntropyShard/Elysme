@@ -22,7 +22,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,16 +29,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import io.kamel.core.utils.File
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import me.theentropyshard.elysme.deltachat.model.DcChatListItem
+import me.theentropyshard.elysme.ui.components.FreshMessageCounter
 import me.theentropyshard.elysme.ui.components.TimeText
 import me.theentropyshard.elysme.ui.theme.Fonts
 import java.time.temporal.ChronoUnit
@@ -109,27 +106,7 @@ fun ChatListItem(
                 )
 
                 if (chat.freshMessageCounter > 0) {
-                    var heightPx by remember { mutableStateOf(0) }
-                    val density = LocalDensity.current
-                    val minWidthDp = with(density) { (if (heightPx == 0) 0 else heightPx).toDp() }
-
-                    Box(
-                        modifier = modifier
-                            .onSizeChanged { heightPx = it.height }
-                            .clip(RoundedCornerShape(percent = 50))
-                            .background(color = MaterialTheme.colorScheme.onSecondaryContainer)
-                            .requiredWidthIn(min = minWidthDp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(vertical = 1.dp, horizontal = 4.dp),
-                            text = "${chat.freshMessageCounter}",
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            fontFamily = Fonts.googleSans(),
-                            fontSize = 14.sp,
-                            lineHeight = 14.sp
-                        )
-                    }
+                    FreshMessageCounter(number = chat.freshMessageCounter)
                 }
             }
         }
