@@ -84,7 +84,7 @@ fun ChatMessage(
     val read = message.state == 28
 
     val senderColor = if (message.sender != null) {
-        Color(0xFF000000 or message.sender.color.substring(1).toLong(16))
+        message.sender.color.toColor()
     } else {
         Color.Unspecified
     }
