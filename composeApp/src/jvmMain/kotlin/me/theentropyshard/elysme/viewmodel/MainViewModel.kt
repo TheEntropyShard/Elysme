@@ -24,8 +24,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.theentropyshard.elysme.deltachat.model.DcChat
 import me.theentropyshard.elysme.deltachat.model.DcChatListItem
@@ -58,7 +62,11 @@ sealed class ElysmeDialog(val content: @Composable (MainViewModel) -> Unit) {
 
 class MainViewModel : ViewModel() {
     val rpc = Rpc(System.getenv("RPC_SERVER_PATH"), System.getenv("DC_ACCOUNTS_PATH"))
-    val gson = Gson()
+
+    val gson = GsonBuilder()
+        .disableJdkUnsafe()
+        .disableHtmlEscaping()
+        .create()
 
     var currentAccountId = 0
     var currentChat by mutableStateOf<DcChat?>(null)
@@ -69,7 +77,9 @@ class MainViewModel : ViewModel() {
 
     val screen = mutableStateOf<Screen>(Screen.MainScreen)
 
-    val chats = mutableStateListOf<DcChatListItem>()
+    private val _chats = MutableStateFlow<List<DcChatListItem>>(listOf())
+    val chats = _chats.asStateFlow()
+
     val messages = mutableStateMapOf<Int, SnapshotStateList<DcMessageListItem>>()
 
     var dialogVisible by mutableStateOf(false)
@@ -84,12 +94,7 @@ class MainViewModel : ViewModel() {
             loadChats()
         }
 
-        Thread(::handleEvents).apply {
-            isDaemon = true
-            name = "RPC Event Handler"
-
-            start()
-        }
+        rpc.addListener(::handleEvent)
     }
 
     private fun getSelectedAccountId(): Int {
@@ -97,8 +102,6 @@ class MainViewModel : ViewModel() {
     }
 
     private fun loadChats() {
-        val gson = GsonBuilder().disableJdkUnsafe().disableHtmlEscaping().create()
-
         val entriesRequest = GetChatListEntriesRequest().apply { setAccountId(currentAccountId) }
         val entries = gson.fromJson(rpc.send(entriesRequest).result, IntArray::class.java)
 
@@ -110,83 +113,51 @@ class MainViewModel : ViewModel() {
         val chatListItems =
             gson.fromJson(rpc.send(itemsRequest).result, object : TypeToken<Map<String, DcChatListItem>>() {})
 
+        val items = mutableListOf<DcChatListItem>()
+
         for (id in entries) {
-            chats += chatListItems[id.toString()]!!
+            items += chatListItems[id.toString()]!!
         }
+
+        _chats.update { items }
     }
 
-    private fun handleEvents() {
-        val gson = Gson()
-
+    private fun handleEvent(accountId: Int, event: JsonObject) {
         val debugPrintEvents = System.getenv("DEBUG_PRINT_EVENTS")?.toBoolean() ?: false
+        val kind = event["kind"].asString
 
-        while (rpc.running.get()) {
-            val event = rpc.waitForEvent(currentAccountId)
-            val kind = event["kind"].asString
+        if (debugPrintEvents && kind != "Info") println(event)
 
-            if (debugPrintEvents && kind != "Info") println(event)
+        when (kind) {
+            "IncomingMsg" -> {
+                val chatId = event.get("chatId").asInt
+                val msgId = event.get("msgId").asInt
 
-            when (kind) {
-                "IncomingMsg" -> {
-                    val chatId = event.get("chatId").asInt
-                    val msgId = event.get("msgId").asInt
+                viewModelScope.launch {
+                    if (messages.containsKey(chatId)) {
+                        messages[chatId]!! += DcMessageListItem(msgId)
+                    }
+                }
+            }
 
-                    viewModelScope.launch {
-                        if (messages.containsKey(chatId)) {
-                            messages[chatId]!! += DcMessageListItem(msgId)
+            "MsgRead" -> {
+                val chatId = event.get("chatId").asInt
+                val msgId = event.get("msgId").asInt
+
+                viewModelScope.launch {
+                    if (messages.containsKey(chatId)) {
+                        val messageList = messages.getOrPut(chatId) { mutableStateListOf() }
+                        val index = messageList.indexOfFirst { it.msgId == msgId }
+
+                        if (index != -1) {
+                            messageList[index] = DcMessageListItem(msgId)
                         }
                     }
                 }
+            }
 
-                "MsgRead" -> {
-                    val chatId = event.get("chatId").asInt
-                    val msgId = event.get("msgId").asInt
-
-                    viewModelScope.launch {
-                        if (messages.containsKey(chatId)) {
-                            val messageList = messages.getOrPut(chatId) { mutableStateListOf() }
-                            val index = messageList.indexOfFirst { it.msgId == msgId }
-
-                            if (index != -1) {
-                                messageList[index] = DcMessageListItem(msgId)
-                            }
-                        }
-                    }
-                }
-
-                "ChatlistItemChanged" -> {
-                    val chatId = event.get("chatId").asInt
-
-                    viewModelScope.launch(Dispatchers.IO) {
-                        val itemsRequest = GetChatListItemsByEntriesRequest().apply {
-                            setAccountId(currentAccountId)
-                            setEntries(IntArray(1).apply { set(0, chatId) })
-                        }
-
-                        val chatListItems =
-                            gson.fromJson(
-                                rpc.send(itemsRequest).result,
-                                object : TypeToken<Map<String, DcChatListItem>>() {})
-
-                        val chat = chats.find { it.id == chatId }
-
-                        if (chat != null) {
-                            val newChat = chatListItems[chatId.toString()]
-
-                            if (newChat != null) chats[chats.indexOf(chat)] = newChat
-                        }
-                    }
-                }
-
-                "ChatlistChanged" -> {
-                    viewModelScope.launch {
-                        val entriesRequest = GetChatListEntriesRequest().apply { setAccountId(currentAccountId) }
-                        val entries = gson.fromJson(rpc.send(entriesRequest).result, object : TypeToken<List<Int>>() {})
-                        val orderMap = entries.indexMap()
-
-                        chats.sortBy { orderMap[it.id] }
-                    }
-                }
+            "ChatlistChanged", "ChatlistItemChanged" -> {
+                loadChats()
             }
         }
     }

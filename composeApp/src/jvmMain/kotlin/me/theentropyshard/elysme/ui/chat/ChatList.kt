@@ -25,6 +25,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -40,9 +42,11 @@ fun ChatList(
     model: MainViewModel,
     onClick: (DcChatListItem) -> Unit
 ) {
+    val chats by model.chats.collectAsState()
+
     Box(modifier = modifier) {
         LazyColumn(modifier = Modifier.fillMaxHeight()) {
-            items(model.chats) {
+            items(chats) {
                 ChatListItem(
                     chat = it,
                     selected = model.currentChat != null && model.currentChat!!.id == it.id,
