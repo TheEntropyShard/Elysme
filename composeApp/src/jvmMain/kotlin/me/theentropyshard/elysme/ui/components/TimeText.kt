@@ -35,8 +35,9 @@ fun TimeText(
     modifier: Modifier = Modifier,
     timestamp: Long,
     timeUnit: ChronoUnit,
-    size: TextUnit,
-    fontFamily: FontFamily = Fonts.googleSans()
+    fontSize: TextUnit = TextUnit.Unspecified,
+    lineHeight: TextUnit = TextUnit.Unspecified,
+    fontFamily: FontFamily? = Fonts.googleSans(),
 ) {
     val text = remember(timestamp) {
         val instant = when (timeUnit) {
@@ -51,9 +52,9 @@ fun TimeText(
     Text(
         modifier = modifier,
         text = text,
-        fontSize = size,
-        lineHeight = size,
+        fontSize = fontSize,
+        lineHeight = lineHeight,
         fontFamily = fontFamily,
-        maxLines = 1
+        maxLines = 1,
     )
 }

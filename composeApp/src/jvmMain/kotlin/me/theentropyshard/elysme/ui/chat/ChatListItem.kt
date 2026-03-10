@@ -90,7 +90,6 @@ fun ChatListItem(
                 TimeText(
                     timestamp = chat.lastUpdated,
                     timeUnit = ChronoUnit.MILLIS,
-                    size = LocalTextStyle.current.fontSize
                 )
             }
 
