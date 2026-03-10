@@ -40,9 +40,9 @@ import io.kamel.core.utils.File
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import me.theentropyshard.elysme.deltachat.model.DcChatListItem
+import me.theentropyshard.elysme.ui.components.TimeText
 import me.theentropyshard.elysme.ui.theme.Fonts
-import java.time.Instant
-import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 @Composable
 fun ChatListItem(
