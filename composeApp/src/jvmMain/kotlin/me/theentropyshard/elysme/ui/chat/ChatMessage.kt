@@ -52,6 +52,8 @@ import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.model.DcReactions
 import me.theentropyshard.elysme.deltachat.request.GetContactsByIdsRequest
 import me.theentropyshard.elysme.extensions.noRippleClickable
+import me.theentropyshard.elysme.extensions.toColor
+import me.theentropyshard.elysme.ui.components.ProfileImage
 import me.theentropyshard.elysme.ui.components.TimeText
 import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
@@ -114,28 +116,14 @@ fun ChatMessage(
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
             if (!myself) {
-                if (profileImage != null) {
-                    KamelImage(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .pointerHoverIcon(icon = PointerIcon.Hand)
-                            .clickable { model.showProfileDialog(message.sender) },
-                        resource = { asyncPainterResource(data = File(profileImage)) },
-                        contentDescription = "Avatar of user $displayName",
-                    )
-                } else {
-                    Surface(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .pointerHoverIcon(icon = PointerIcon.Hand)
-                            .clickable { model.showProfileDialog(message.sender) },
-                        shape = CircleShape,
-                        color = senderColor,
-                    ) {
-
-                    }
-                }
+                ProfileImage(
+                    modifier = Modifier.clickable { model.showProfileDialog(message.sender) },
+                    profileImage = profileImage,
+                    size = 32.dp,
+                    displayName = displayName,
+                    color = senderColor,
+                    contentDescription = "User $displayName"
+                )
 
                 Spacer(modifier = Modifier.width(8.dp))
             }
@@ -424,12 +412,12 @@ private fun ReactionItem(
                 val contact = realContacts[string]
 
                 if (contact != null) {
-                    KamelImage(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .size(20.dp),
-                        resource = { asyncPainterResource(data = File(contact.profileImage)) },
-                        contentDescription = ""
+                    ProfileImage(
+                        profileImage = contact.profileImage,
+                        size = 20.dp,
+                        displayName = contact.displayName,
+                        contentDescription = null,
+                        color = contact.color.toColor()
                     )
                 }
             }
