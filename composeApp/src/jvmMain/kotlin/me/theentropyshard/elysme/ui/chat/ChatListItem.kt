@@ -23,6 +23,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -79,15 +80,19 @@ fun ChatListItem(
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = buildString {
+                val summary = remember(chat.summaryText1, chat.summaryText2) {
+                    buildString {
                         if (chat.summaryText1 != null && chat.summaryText1.isNotEmpty()) {
                             append(chat.summaryText1).append(": ")
                         }
 
                         append(chat.summaryText2)
-                    },
+                    }
+                }
+
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = summary,
                     fontFamily = Fonts.googleSans(),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
