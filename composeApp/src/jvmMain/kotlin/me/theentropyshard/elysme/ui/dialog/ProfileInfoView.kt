@@ -18,39 +18,19 @@
 
 package me.theentropyshard.elysme.ui.dialog
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import elysme.composeapp.generated.resources.Res
-import elysme.composeapp.generated.resources.chat24dp
-import elysme.composeapp.generated.resources.edit24dp
-import io.kamel.core.utils.File
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
+import me.theentropyshard.elysme.extensions.toColor
+import me.theentropyshard.elysme.ui.components.ProfileImage
 import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
-import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun ProfileInfoView(model: MainViewModel) {
@@ -66,28 +46,13 @@ fun ProfileInfoView(model: MainViewModel) {
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (contact.profileImage != null) {
-                KamelImage(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape),
-                    resource = {
-                        asyncPainterResource(
-                            data = File(contact.profileImage),
-                            filterQuality = FilterQuality.High
-                        )
-                    },
-                    contentDescription = "User profile image - ${contact.name}",
-                )
-            } else {
-                Surface(
-                    modifier = Modifier.size(64.dp),
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                ) {
-
-                }
-            }
+            ProfileImage(
+                profileImage = contact.profileImage,
+                size = 64.dp,
+                color = contact.color.toColor(),
+                contentDescription = "User profile image - ${contact.name}",
+                displayName = contact.displayName
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
