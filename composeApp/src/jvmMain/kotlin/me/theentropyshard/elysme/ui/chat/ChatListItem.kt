@@ -85,9 +85,10 @@ fun ChatListItem(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Text(
-                    text = FORMATTER.format(Instant.ofEpochMilli(chat.lastUpdated).atZone(ZoneId.systemDefault())),
-                    fontFamily = Fonts.googleSans(),
+                TimeText(
+                    timestamp = chat.lastUpdated,
+                    timeUnit = ChronoUnit.MILLIS,
+                    size = LocalTextStyle.current.fontSize
                 )
             }
 
