@@ -141,11 +141,27 @@ class MainViewModel : ViewModel() {
 
                 viewModelScope.launch {
                     if (messages.containsKey(chatId)) {
-                        val messageList = messages.getOrPut(chatId) { mutableStateListOf() }
+                        val messageList = messages[chatId]!!
                         val index = messageList.indexOfFirst { it.msgId == msgId }
 
                         if (index != -1) {
                             messageList[index] = DcMessageListItem(msgId)
+                        }
+                    }
+                }
+            }
+
+            "MsgDeleted" -> {
+                val chatId = event.get("chatId").asInt
+                val msgId = event.get("msgId").asInt
+
+                viewModelScope.launch {
+                    if (messages.containsKey(chatId)) {
+                        val messageList = messages[chatId]!!
+                        val index = messageList.indexOfFirst { it.msgId == msgId }
+
+                        if (index != -1) {
+                            messageList.removeAt(index)
                         }
                     }
                 }
