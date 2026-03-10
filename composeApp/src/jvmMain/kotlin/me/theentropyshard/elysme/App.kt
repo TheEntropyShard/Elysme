@@ -84,7 +84,7 @@ private fun MainScreen(
         modifier = modifier,
         splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.25f)
     ) {
-        first(minSize = 256.dp) {
+        first(minSize = 320.dp) {
             ChatList(
                 modifier = Modifier.fillMaxHeight(),
                 model = model,
