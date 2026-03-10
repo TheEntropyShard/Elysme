@@ -52,6 +52,7 @@ import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.model.DcReactions
 import me.theentropyshard.elysme.deltachat.request.GetContactsByIdsRequest
 import me.theentropyshard.elysme.extensions.noRippleClickable
+import me.theentropyshard.elysme.ui.components.TimeText
 import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
@@ -59,6 +60,7 @@ import java.awt.datatransfer.StringSelection
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 private val MessageShape = RoundedCornerShape(12.dp)
 private val MessagePadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 0.dp, top = 4.dp)
@@ -310,10 +312,9 @@ fun ChatMessage(
                                     Spacer(modifier = Modifier.width(4.dp))
                                 }
 
-                                Text(
-                                    text = FORMATTER.format(
-                                        Instant.ofEpochSecond(message.timestamp).atZone(ZoneId.systemDefault())
-                                    ),
+                                TimeText(
+                                    timestamp = message.timestamp,
+                                    timeUnit = ChronoUnit.SECONDS,
                                     fontFamily = googleSans,
                                     fontSize = 12.sp,
                                     lineHeight = 12.sp
