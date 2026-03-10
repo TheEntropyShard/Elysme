@@ -46,7 +46,7 @@ fun ChatList(
 
     Box(modifier = modifier) {
         LazyColumn(modifier = Modifier.fillMaxHeight()) {
-            items(chats) {
+            items(chats, key = { it.id }) {
                 ChatListItem(
                     chat = it,
                     selected = model.currentChat != null && model.currentChat!!.id == it.id,
