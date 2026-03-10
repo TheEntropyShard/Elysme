@@ -31,15 +31,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import me.theentropyshard.elysme.deltachat.model.DcChat
-import me.theentropyshard.elysme.deltachat.model.DcChatListItem
-import me.theentropyshard.elysme.deltachat.model.DcContact
-import me.theentropyshard.elysme.deltachat.model.DcMessage
-import me.theentropyshard.elysme.deltachat.model.DcMessageListItem
+import me.theentropyshard.elysme.deltachat.model.*
 import me.theentropyshard.elysme.deltachat.request.*
 import me.theentropyshard.elysme.deltachat.rpc.Rpc
 import me.theentropyshard.elysme.deltachat.rpc.RpcMethod
-import me.theentropyshard.elysme.extensions.indexMap
 import me.theentropyshard.elysme.extensions.toBufferedImage
 import me.theentropyshard.elysme.ui.dialog.ChatInfoView
 import me.theentropyshard.elysme.ui.dialog.ChatMediaView
@@ -140,7 +135,7 @@ class MainViewModel : ViewModel() {
                 }
             }
 
-            "MsgRead" -> {
+            "MsgRead", "IncomingReaction", "ReactionsChanged" -> {
                 val chatId = event.get("chatId").asInt
                 val msgId = event.get("msgId").asInt
 
