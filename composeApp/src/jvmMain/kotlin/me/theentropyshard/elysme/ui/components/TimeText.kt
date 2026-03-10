@@ -53,6 +53,7 @@ fun TimeText(
         text = text,
         fontSize = size,
         lineHeight = size,
-        fontFamily = fontFamily
+        fontFamily = fontFamily,
+        maxLines = 1
     )
 }
