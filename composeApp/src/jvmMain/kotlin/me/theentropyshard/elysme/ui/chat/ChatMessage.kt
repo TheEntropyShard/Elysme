@@ -403,10 +403,15 @@ private fun ReactionItem(
         modifier = modifier
             .clip(RoundedCornerShape(percent = 50))
             .background(color = MaterialTheme.colorScheme.inversePrimary)
-            .padding(3.dp),
+            .padding(start = 6.dp, top = 2.dp, bottom = 2.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = emoji)
+        Text(
+            modifier = Modifier.padding(bottom = 2.dp),
+            text = emoji,
+            lineHeight = 20.sp,
+            fontSize = 16.sp,
+        )
 
         Spacer(modifier = Modifier.width(2.dp))
 
