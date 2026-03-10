@@ -86,7 +86,7 @@ private fun NoProfileImage(
 
     val measuredText = measurer.measure(
         text = text,
-        style = LocalTextStyle.current.copy(fontSize = fontSize)
+        style = LocalTextStyle.current.copy(fontSize = fontSize, lineHeight = fontSize)
     )
 
     Canvas(modifier = modifier) {
