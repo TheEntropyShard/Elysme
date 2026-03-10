@@ -278,7 +278,10 @@ fun ChatMessage(
                             Spacer(modifier = Modifier.height(8.dp))
                         }
 
-                        Row(verticalAlignment = Alignment.Bottom) {
+                        Row(
+                            modifier = Modifier.animateContentSize(alignment = Alignment.BottomStart),
+                            verticalAlignment = Alignment.Bottom
+                        ) {
                             ReactionsView(
                                 modifier = Modifier.padding(bottom = 8.dp),
                                 reactions = message.reactions,
