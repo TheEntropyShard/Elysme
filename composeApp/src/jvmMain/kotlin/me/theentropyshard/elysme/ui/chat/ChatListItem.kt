@@ -94,6 +94,8 @@ fun ChatListItem(
                 )
 
                 if (chat.freshMessageCounter > 0) {
+                    Spacer(modifier = Modifier.width(8.dp))
+
                     FreshMessageCounter(number = chat.freshMessageCounter)
                 }
             }
