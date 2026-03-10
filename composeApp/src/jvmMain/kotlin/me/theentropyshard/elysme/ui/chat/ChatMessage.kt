@@ -117,12 +117,14 @@ fun ChatMessage(
         Row(verticalAlignment = Alignment.Bottom) {
             if (!myself) {
                 ProfileImage(
-                    modifier = Modifier.clickable { model.showProfileDialog(message.sender) },
+                    modifier = Modifier
+                        .pointerHoverIcon(icon = PointerIcon.Hand)
+                        .clickable { model.showProfileDialog(message.sender) },
                     profileImage = profileImage,
                     size = 32.dp,
                     displayName = displayName,
                     color = senderColor,
-                    contentDescription = "User $displayName"
+                    contentDescription = "User $displayName",
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))

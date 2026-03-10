@@ -52,19 +52,22 @@ fun ProfileImage(
     size: Dp,
     displayName: String,
     contentDescription: String?,
-    color: Color = MaterialTheme.colorScheme.primaryContainer
+    color: Color = MaterialTheme.colorScheme.primaryContainer,
 ) {
+    val theModifier = Modifier
+        .clip(CircleShape)
+        .size(size)
+        .then(modifier)
+
     if (profileImage != null) {
         KamelImage(
-            modifier = modifier
-                .size(size)
-                .clip(CircleShape),
+            modifier = theModifier,
             resource = { asyncPainterResource(data = File(profileImage), filterQuality = FilterQuality.High) },
             contentDescription = contentDescription,
         )
     } else {
         NoProfileImage(
-            modifier = modifier.size(size),
+            modifier = theModifier,
             fontSize = (size.value / 1.5).sp,
             color = color,
             displayName = displayName,
