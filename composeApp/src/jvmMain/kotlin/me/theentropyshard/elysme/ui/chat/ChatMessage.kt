@@ -20,10 +20,8 @@ package me.theentropyshard.elysme.ui.chat
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -35,11 +33,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.*
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.awtClipboard
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.gson.reflect.TypeToken
@@ -89,6 +91,10 @@ fun ChatMessage(
     var menuOffset by remember { mutableStateOf(Offset.Zero) }
 
     val googleSans = Fonts.googleSans()
+
+    val hasQuote = message.hasQuote()
+    val hasText = message.hasText()
+    val hasAttachment = message.hasAttachment()
 
     Row(
         modifier = modifier
@@ -166,160 +172,148 @@ fun ChatMessage(
                 val backgroundColor = if (myself) myselfColor else otherColor
 
                 CompositionLocalProvider(LocalContentColor provides contentColorFor(backgroundColor)) {
-                    Column(
-                        modifier = Modifier
+                    ChatMessageLayout(
+                        modifier = modifier
                             .clip(MessageShape)
+                            .background(backgroundColor)
                             .widthIn(min = 200.dp, max = maxWidth * 0.85f)
-                            .width(IntrinsicSize.Max)
-                            .background(color = backgroundColor)
-                            .padding(MessagePadding)
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    matcher = PointerMatcher.pointer(
-                                        pointerType = PointerType.Mouse,
-                                        button = PointerButton.Secondary
-                                    )
-                                ) { offs ->
-                                    menuOffset = offs
-                                    menuVisible = true
-                                }
-                            },
-                    ) {
-                        if (!myself) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    modifier = Modifier
-                                        .pointerHoverIcon(icon = PointerIcon.Hand)
-                                        .noRippleClickable { model.showProfileDialog(message.sender) },
-                                    text = displayName,
-                                    fontFamily = googleSans,
-                                    fontWeight = FontWeight.Medium,
-                                    color = senderColor,
-                                )
-
-                                if (hovered) {
-                                    var replyHovered by remember { mutableStateOf(false) }
-
-                                    Spacer(modifier = Modifier.weight(1f))
-
+                            .padding(MessagePadding),
+                        topRow = {
+                            if (!myself) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
                                         modifier = Modifier
-                                            .pointerInput(Unit) {
-                                                awaitPointerEventScope {
-                                                    while (true) {
-                                                        val event = awaitPointerEvent()
+                                            .weight(1f)
+                                            .pointerHoverIcon(icon = PointerIcon.Hand)
+                                            .noRippleClickable { model.showProfileDialog(message.sender) },
+                                        text = displayName,
+                                        fontFamily = googleSans,
+                                        fontWeight = FontWeight.Medium,
+                                        color = senderColor,
+                                        overflow = TextOverflow.Ellipsis,
+                                        maxLines = 1,
+                                    )
 
-                                                        replyHovered = when (event.type) {
-                                                            PointerEventType.Enter -> true
-                                                            PointerEventType.Exit -> false
-                                                            else -> replyHovered
+                                    if (hovered) {
+                                        var replyHovered by remember { mutableStateOf(false) }
+
+                                        Text(
+                                            modifier = Modifier
+                                                .pointerInput(Unit) {
+                                                    awaitPointerEventScope {
+                                                        while (true) {
+                                                            val event = awaitPointerEvent()
+
+                                                            replyHovered = when (event.type) {
+                                                                PointerEventType.Enter -> true
+                                                                PointerEventType.Exit -> false
+                                                                else -> replyHovered
+                                                            }
                                                         }
                                                     }
                                                 }
-                                            }
-                                            .pointerHoverIcon(icon = PointerIcon.Hand)
-                                            .noRippleClickable { onReply(message) },
-                                        text = "Reply",
-                                        textDecoration = if (replyHovered) TextDecoration.Underline else null,
+                                                .pointerHoverIcon(icon = PointerIcon.Hand)
+                                                .noRippleClickable { onReply(message) },
+                                            text = "Reply",
+                                            textDecoration = if (replyHovered) TextDecoration.Underline else null,
+                                            fontFamily = googleSans
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        quote = {
+                            if (hasQuote) {
+                                QuoteView(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = if (myself) 4.dp else 0.dp),
+                                    color = message.quote.authorDisplayColor,
+                                    name = message.quote.authorDisplayName,
+                                    text = message.quote.text,
+                                    onClick = { onQuoteClick(message.quote.messageId) }
+                                )
+                            }
+                        },
+                        attachment = {
+                            if (hasAttachment) {
+                                val theModifier = Modifier.padding(
+                                    top = when {
+                                        !hasQuote && myself -> 4.dp
+                                        hasQuote -> 8.dp
+                                        else -> 0.dp
+                                    }
+                                )
+
+                                if (message.fileMime.startsWith("image/")) {
+                                    ImageAttachment(modifier = theModifier, message = message, onClick = onImageClick)
+                                } else {
+                                    FileAttachment(modifier = theModifier, message = message, onClick = onFileClick)
+                                }
+                            }
+                        },
+                        text = {
+                            if (hasText) {
+                                SelectionContainer {
+                                    Text(
+                                        text = message.text,
                                         fontFamily = googleSans
                                     )
                                 }
+                            } else if (hasAttachment) {
+                                Spacer(modifier = Modifier.height(6.dp))
                             }
-                        }
-
-                        val hasQuote = message.hasQuote()
-                        val hasText = message.hasText()
-                        val hasAttachment = message.hasAttachment()
-
-                        if (hasQuote) {
-                            if (myself) Spacer(modifier = Modifier.height(4.dp))
-
-                            QuoteView(
-                                modifier = Modifier.fillMaxWidth(),
-                                color = message.quote.authorDisplayColor,
-                                name = message.quote.authorDisplayName,
-                                text = message.quote.text,
-                                onClick = { onQuoteClick(message.quote.messageId) }
-                            )
-                        }
-
-                        if (hasQuote && hasAttachment) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-
-                        if (hasAttachment) {
-                            if (myself && !hasQuote) Spacer(modifier = Modifier.height(4.dp))
-
-                            if (message.fileMime.startsWith("image/")) {
-                                ImageAttachment(
-                                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                                    message = message,
-                                    onClick = onImageClick
-                                )
-                            } else {
-                                FileAttachment(message = message, onClick = onFileClick)
-                            }
-                        }
-
-                        if (hasText) {
-                            SelectionContainer {
-                                Text(
-                                    text = message.text,
-                                    fontFamily = googleSans
-                                )
-                            }
-                        } else if (hasAttachment) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-
-                        Row(
-                            modifier = Modifier.animateContentSize(alignment = Alignment.BottomStart),
-                            verticalAlignment = Alignment.Bottom
-                        ) {
-                            ReactionsView(
-                                modifier = Modifier.padding(bottom = 8.dp),
-                                reactions = message.reactions,
-                                model = model
-                            )
-
-                            Spacer(modifier = Modifier.weight(1f).width(16.dp))
-
+                        },
+                        bottomRow = {
                             Row(
-                                modifier = Modifier.padding(bottom = 6.dp),
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically
+                                modifier = Modifier.animateContentSize(alignment = Alignment.BottomStart),
+                                verticalAlignment = Alignment.Bottom
                             ) {
-                                if (message.isIsEdited) {
-                                    Icon(
-                                        modifier = Modifier.size(16.dp),
-                                        painter = painterResource(Res.drawable.edit24dp),
-                                        contentDescription = "Message was edited",
-                                    )
-
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                }
-
-                                TimeText(
-                                    timestamp = message.timestamp,
-                                    timeUnit = ChronoUnit.SECONDS,
-                                    fontFamily = googleSans,
-                                    fontSize = 12.sp,
-                                    lineHeight = 12.sp
+                                ReactionsView(
+                                    modifier = Modifier.padding(bottom = 8.dp),
+                                    reactions = message.reactions,
+                                    model = model
                                 )
 
-                                if (myself) {
-                                    Spacer(modifier = Modifier.width(4.dp))
+                                Spacer(modifier = Modifier.weight(1f).width(16.dp))
 
-                                    Icon(
-                                        modifier = Modifier.size(18.dp),
-                                        painter = painterResource(if (read) Res.drawable.read24dp else Res.drawable.unread24dp),
-                                        contentDescription = "Message status indicator",
-                                        tint = MaterialTheme.colorScheme.primary
+                                Row(
+                                    modifier = Modifier.padding(bottom = 6.dp),
+                                    horizontalArrangement = Arrangement.End,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    if (message.isIsEdited) {
+                                        Icon(
+                                            modifier = Modifier.size(16.dp),
+                                            painter = painterResource(Res.drawable.edit24dp),
+                                            contentDescription = "Message was edited",
+                                        )
+
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                    }
+
+                                    TimeText(
+                                        timestamp = message.timestamp,
+                                        timeUnit = ChronoUnit.SECONDS,
+                                        fontFamily = googleSans,
+                                        fontSize = 12.sp,
+                                        lineHeight = 12.sp
                                     )
+
+                                    if (myself) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+
+                                        Icon(
+                                            modifier = Modifier.size(18.dp),
+                                            painter = painterResource(if (read) Res.drawable.read24dp else Res.drawable.unread24dp),
+                                            contentDescription = "Message status indicator",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
+                    )
                 }
             }
         }
