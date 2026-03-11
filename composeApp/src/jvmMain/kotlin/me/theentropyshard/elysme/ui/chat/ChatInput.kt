@@ -77,8 +77,12 @@ fun ChatInput(
 
     LaunchedEffect(model.currentReplyTo) {
         if (model.currentReplyTo != null) {
-            requester.requestFocus()
+            if (model.editing) {
+                state.edit { replace(0, length, model.currentReplyTo!!.text!!) }
+            }
         }
+
+        requester.requestFocus()
     }
 
     ChatInputBase(
@@ -95,9 +99,18 @@ fun ChatInput(
                     QuoteView(
                         modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
                         color = model.currentReplyTo?.sender?.color,
-                        name = model.currentReplyTo?.sender?.displayName,
+                        name = if (model.editing) "Edit message" else model.currentReplyTo?.sender?.displayName,
                         text = model.currentReplyTo?.text!!,
-                        onClick = { model.cancelReply() }
+                        onCancel = {
+                            model.cancelReply()
+
+                            if (model.editing) {
+                                state.edit { replace(0, length, "") }
+                            }
+
+                            model.editing = false
+                        },
+                        onClick = { }
                     )
                 }
 

@@ -122,6 +122,10 @@ fun ChatBody(
                                             message = msg,
                                             model = model,
                                             onReply = onReply,
+                                            onEdit = {
+                                                model.editing = true
+                                                model.replyTo(msg)
+                                            },
                                             onQuoteClick = { id ->
                                                 scope.launch {
                                                     val index =

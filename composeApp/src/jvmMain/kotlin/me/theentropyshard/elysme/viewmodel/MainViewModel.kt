@@ -67,6 +67,7 @@ class MainViewModel : ViewModel() {
     var currentChat by mutableStateOf<DcChat?>(null)
     var currentContact by mutableStateOf<DcContact?>(null)
 
+    var editing by mutableStateOf(false)
     var currentReplyTo by mutableStateOf<DcMessage?>(null)
     var currentFile by mutableStateOf<File?>(null)
 
@@ -135,7 +136,7 @@ class MainViewModel : ViewModel() {
                 }
             }
 
-            "MsgRead", "IncomingReaction", "ReactionsChanged" -> {
+            "MsgRead", "MsgsChanged", "IncomingReaction", "ReactionsChanged" -> {
                 val chatId = event.get("chatId").asInt
                 val msgId = event.get("msgId").asInt
 
@@ -212,6 +213,12 @@ class MainViewModel : ViewModel() {
     }
 
     fun sendMessage(message: String?) {
+        if (editing) {
+            editMessage(message!!)
+
+            return
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
             val sendMessageRequest = SendMessageRequest().apply {
                 setAccountId(currentAccountId)
@@ -230,6 +237,22 @@ class MainViewModel : ViewModel() {
             val sentMessageId = rpc.send(sendMessageRequest).result.asInt
 
             messages.getOrPut(currentChat!!.id) { mutableStateListOf() } += DcMessageListItem(sentMessageId)
+        }
+    }
+
+    fun editMessage(newText: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val request = RpcMethod.send_edit_request.makeRequest()
+            request.addParam(currentAccountId)
+            request.addParam(currentReplyTo!!.id)
+            request.addParam(newText)
+
+            rpc.send(request)
+
+            viewModelScope.launch {
+                cancelReply()
+                editing = false
+            }
         }
     }
 

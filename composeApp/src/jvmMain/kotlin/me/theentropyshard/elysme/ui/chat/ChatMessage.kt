@@ -92,6 +92,7 @@ fun ChatMessage(
     message: DcMessage,
     model: MainViewModel,
     onReply: (DcMessage) -> Unit,
+    onEdit: (DcMessage) -> Unit,
     onQuoteClick: (Int) -> Unit,
     onImageClick: () -> Unit,
     onFileClick: () -> Unit,
@@ -160,7 +161,7 @@ fun ChatMessage(
                     visible = menuVisible,
                     onDismissRequest = { menuVisible = false },
                     items = {
-                        listOf(
+                        mutableListOf(
                             MessageMenuItem(
                                 icon = Res.drawable.reply24dp,
                                 text = "Reply",
@@ -185,7 +186,19 @@ fun ChatMessage(
                                 description = "Delete the message",
                                 onClick = {}
                             ),
-                        )
+                        ).apply {
+                            if (myself) {
+                                add(
+                                    index = 1,
+                                    element = MessageMenuItem(
+                                        icon = Res.drawable.edit24dp,
+                                        text = "Edit",
+                                        description = "Edit the message",
+                                        onClick = { onEdit(message) }
+                                    )
+                                )
+                            }
+                        }
                     }
                 )
 
