@@ -27,8 +27,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
@@ -38,7 +41,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import elysme.composeapp.generated.resources.Res
+import elysme.composeapp.generated.resources.close24dp
+import me.theentropyshard.elysme.extensions.toColor
 import me.theentropyshard.elysme.ui.theme.Fonts
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun QuoteView(
@@ -46,13 +53,10 @@ fun QuoteView(
     color: String? = null,
     name: String? = null,
     text: String,
+    onCancel: (() -> Unit)? = null,
     onClick: () -> Unit
 ) {
-    val quoteColor = if (color != null) {
-        Color(0xFF000000 or color.substring(1).toLong(16))
-    } else {
-        Color.Unspecified
-    }
+    val quoteColor = color?.toColor() ?: Color.Unspecified
 
     Box(
         modifier = modifier
@@ -90,6 +94,19 @@ fun QuoteView(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+        }
+
+        if (onCancel != null) {
+            IconButton(
+                modifier = Modifier.align(Alignment.TopEnd),
+                onClick = onCancel
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.close24dp),
+                    contentDescription = "Cancel",
+                    tint = quoteColor
+                )
+            }
         }
     }
 }
