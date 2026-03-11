@@ -23,7 +23,6 @@ kotlin {
             implementation("com.google.code.gson:gson:2.11.0")
             implementation("io.coil-kt.coil3:coil-compose:3.4.0")
             implementation("org.jetbrains.compose.components:components-splitpane-desktop:1.10.1")
-            implementation("net.fellbaum:jemoji:1.7.4")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
