@@ -42,12 +42,11 @@ import elysme.composeapp.generated.resources.Res
 import elysme.composeapp.generated.resources.attach24dp
 import elysme.composeapp.generated.resources.close24dp
 import elysme.composeapp.generated.resources.send24dp
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
+import me.theentropyshard.elysme.workarounds.PlatformImage
 import org.jetbrains.compose.resources.painterResource
 import java.awt.Desktop
 
@@ -136,13 +135,13 @@ fun ChatInput(
                             fileName.endsWith(".svg") || fileName.endsWith(".tif") ||
                             fileName.endsWith(".tiff")
                         ) {
-                            KamelImage(
+                            PlatformImage(
                                 modifier = Modifier
                                     .padding(start = 8.dp, end = 8.dp, top = 8.dp)
                                     .align(Alignment.Center)
                                     .width(360.dp)
                                     .aspectRatio(16.0f / 9.0f),
-                                resource = { asyncPainterResource(data = model.currentFile!!) },
+                                model = model.currentFile!!,
                                 contentDescription = "File: ${model.currentFile}"
                             )
                         } else {

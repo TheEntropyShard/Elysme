@@ -35,9 +35,6 @@ import androidx.compose.ui.unit.dp
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import elysme.composeapp.generated.resources.*
-import io.kamel.core.utils.File
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
 import me.theentropyshard.elysme.deltachat.model.DcMessage
 import me.theentropyshard.elysme.deltachat.request.GetMessagesRequest
 import me.theentropyshard.elysme.deltachat.request.GetSingleMessageRequest
@@ -45,6 +42,7 @@ import me.theentropyshard.elysme.deltachat.rpc.RpcMethod
 import me.theentropyshard.elysme.ui.chat.FileAttachment
 import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
+import me.theentropyshard.elysme.workarounds.PlatformImage
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
@@ -148,10 +146,10 @@ private fun ImageGrid(model: MainViewModel, messageIds: IntArray) {
                 val msg = gson.fromJson(model.rpc.send(request).result, DcMessage::class.java)
 
                 if (msg != null && msg.file != null) {
-                    KamelImage(
+                    PlatformImage(
                         modifier = Modifier.aspectRatio(1f).clip(RoundedCornerShape(8.dp)),
-                        resource = { asyncPainterResource(data = File(msg.file)) },
-                        contentDescription = "",
+                        model = msg.file,
+                        contentDescription = null,
                         contentScale = ContentScale.Crop
                     )
                 }

@@ -23,20 +23,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import io.kamel.core.utils.File
-import io.kamel.image.asyncPainterResource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import me.theentropyshard.elysme.deltachat.model.DcMessage
-import me.theentropyshard.elysme.utils.NoMaxSizeImage
-import java.awt.Desktop
+import me.theentropyshard.elysme.workarounds.PlatformImage
 import kotlin.math.max
 import kotlin.math.min
 
@@ -87,13 +80,11 @@ fun ImageAttachment(
             .clickable { onClick() },
         color = MaterialTheme.colorScheme.surfaceContainerLow
     ) {
-        NoMaxSizeImage(
+        PlatformImage(
             modifier = Modifier.scale(max(scale, 1.0f)),
+            model = message.file,
             contentDescription = "Image: ${message.fileName}",
-            contentScale = contentScale,
-            resource = { asyncPainterResource(data = File(message.file)) },
-            onLoading = { CircularProgressIndicator(modifier = Modifier.align(Alignment.Center)) },
-            onFailure = { throwable -> Text(text = "Error: cannot load the image: ${throwable.toString()}") }
+            contentScale = contentScale
         )
     }
 }

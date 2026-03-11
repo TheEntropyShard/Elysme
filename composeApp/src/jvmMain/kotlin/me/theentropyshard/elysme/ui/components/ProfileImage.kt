@@ -28,7 +28,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
@@ -39,11 +38,9 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
-import io.kamel.core.utils.File
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
 import me.theentropyshard.elysme.extensions.lighter
 import me.theentropyshard.elysme.ui.theme.Fonts
+import me.theentropyshard.elysme.workarounds.PlatformImage
 
 @Composable
 fun ProfileImage(
@@ -60,10 +57,10 @@ fun ProfileImage(
         .then(modifier)
 
     if (profileImage != null) {
-        KamelImage(
+        PlatformImage(
             modifier = theModifier,
-            resource = { asyncPainterResource(data = File(profileImage), filterQuality = FilterQuality.High) },
-            contentDescription = contentDescription,
+            model = profileImage,
+            contentDescription = contentDescription
         )
     } else {
         NoProfileImage(
