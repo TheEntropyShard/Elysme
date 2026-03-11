@@ -56,7 +56,6 @@ import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
 import java.awt.datatransfer.StringSelection
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 private val MessageShape = RoundedCornerShape(12.dp)
@@ -326,8 +325,6 @@ fun ChatMessage(
         }
     }
 }
-
-val FORMATTER = DateTimeFormatter.ofPattern("HH:mm")
 
 private fun transformReactions(reactions: Map<String, List<String>>): Map<String, Set<String>> {
     val ret = mutableMapOf<String, MutableSet<String>>()

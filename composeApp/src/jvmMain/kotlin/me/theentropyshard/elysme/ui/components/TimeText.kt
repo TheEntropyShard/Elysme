@@ -24,11 +24,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.TextUnit
-import me.theentropyshard.elysme.ui.chat.FORMATTER
 import me.theentropyshard.elysme.ui.theme.Fonts
 import java.time.Instant
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+
+private val FORMATTER = DateTimeFormatter.ofPattern("HH:mm")
 
 @Composable
 fun TimeText(
