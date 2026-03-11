@@ -19,11 +19,17 @@
 package me.theentropyshard.elysme.ui.chat
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ContextMenuState
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.LocalTextContextMenu
+import androidx.compose.foundation.text.TextContextMenu
+import androidx.compose.foundation.text.TextContextMenu.TextManager
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,8 +39,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboard
@@ -59,6 +67,20 @@ import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
 import java.awt.datatransfer.StringSelection
 import java.time.temporal.ChronoUnit
+
+// We replace standard menu that comes with SelectionContainer. This allows us to right-click on
+// text and use our own styled menu instead
+@ExperimentalFoundationApi
+val EmptyTextContextMenu = object : TextContextMenu {
+    @Composable
+    override fun Area(textManager: TextManager, state: ContextMenuState, content: @Composable () -> Unit) {
+        // Close the menu immediately
+        state.status = ContextMenuState.Status.Closed
+
+        // This call is important here because visible text is the content of ContextMenuArea
+        content()
+    }
+}
 
 private val MessageShape = RoundedCornerShape(12.dp)
 private val MessagePadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 0.dp, top = 4.dp)
@@ -171,12 +193,26 @@ fun ChatMessage(
                 val otherColor = MaterialTheme.colorScheme.primaryContainer
                 val backgroundColor = if (myself) myselfColor else otherColor
 
-                CompositionLocalProvider(LocalContentColor provides contentColorFor(backgroundColor)) {
+                CompositionLocalProvider(
+                    LocalContentColor provides contentColorFor(backgroundColor),
+                    LocalTextContextMenu provides EmptyTextContextMenu
+                ) {
                     ChatMessageLayout(
                         modifier = modifier
                             .clip(MessageShape)
                             .background(backgroundColor)
                             .widthIn(min = 200.dp, max = maxWidth * 0.85f)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    matcher = PointerMatcher.pointer(
+                                        pointerType = PointerType.Mouse,
+                                        button = PointerButton.Secondary
+                                    )
+                                ) { offs ->
+                                    menuOffset = offs
+                                    menuVisible = true
+                                }
+                            }
                             .padding(MessagePadding),
                         topRow = {
                             if (!myself) {
