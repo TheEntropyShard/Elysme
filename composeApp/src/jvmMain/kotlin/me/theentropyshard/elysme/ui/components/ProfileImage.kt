@@ -28,8 +28,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontFamily
@@ -84,10 +82,15 @@ private fun NoProfileImage(
     val text = "${displayName[0]}"
     val measurer = rememberTextMeasurer()
 
-    val measuredText = measurer.measure(
-        text = text,
-        style = LocalTextStyle.current.copy(fontSize = fontSize, lineHeight = fontSize)
+    val style = TextStyle(
+        color = Color.White,
+        fontWeight = FontWeight.Medium,
+        fontFamily = fontFamily,
+        fontSize = fontSize,
+        lineHeight = fontSize,
     )
+
+    val measuredText = measurer.measure(text = text, style = style)
 
     Canvas(modifier = modifier) {
         drawCircle(
@@ -111,26 +114,7 @@ private fun NoProfileImage(
             text = text,
             textMeasurer = measurer,
             topLeft = topLeftOffset,
-            style = TextStyle(
-                color = Color.White,
-                fontWeight = FontWeight.Medium,
-                fontFamily = fontFamily,
-                fontSize = fontSize,
-                drawStyle = Fill
-            )
-        )
-
-        drawText(
-            text = text,
-            textMeasurer = measurer,
-            topLeft = topLeftOffset,
-            style = TextStyle(
-                color = Color.White,
-                fontWeight = FontWeight.Medium,
-                fontFamily = fontFamily,
-                fontSize = fontSize,
-                drawStyle = Stroke(width = 1.0f, miter = 1.0f)
-            )
+            style = style
         )
     }
 }
