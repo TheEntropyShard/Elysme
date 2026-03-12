@@ -52,8 +52,8 @@ public class DcChatListItem {
         return this.avatarPath;
     }
 
-    public String getChatType() {
-        return this.chatType;
+    public ChatType getChatType() {
+        return ChatType.getByName(this.chatType);
     }
 
     public String getColor() {
