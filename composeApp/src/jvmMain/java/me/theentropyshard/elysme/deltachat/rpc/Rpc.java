@@ -85,8 +85,6 @@ public class Rpc {
 
         this.eventThread = new Thread(this::eventsLoop);
         this.eventThread.start();
-
-        this.send(RpcMethod.start_io_for_all_accounts.makeRequest());
     }
 
     public void stop() {

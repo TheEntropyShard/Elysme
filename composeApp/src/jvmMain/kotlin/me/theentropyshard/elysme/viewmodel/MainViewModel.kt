@@ -36,6 +36,7 @@ import me.theentropyshard.elysme.deltachat.request.*
 import me.theentropyshard.elysme.deltachat.rpc.Rpc
 import me.theentropyshard.elysme.deltachat.rpc.RpcMethod
 import me.theentropyshard.elysme.extensions.toBufferedImage
+import me.theentropyshard.elysme.ui.backup.ImportProgressView
 import me.theentropyshard.elysme.ui.dialog.ChatInfoView
 import me.theentropyshard.elysme.ui.dialog.ChatMediaView
 import me.theentropyshard.elysme.ui.dialog.ProfileInfoView
@@ -45,6 +46,7 @@ import javax.imageio.ImageIO
 import kotlin.io.path.createTempFile
 
 sealed class Screen {
+    object None : Screen()
     object ImportBackupScreen : Screen()
     object MainScreen : Screen()
 }
@@ -53,7 +55,15 @@ sealed class ElysmeDialog(val content: @Composable (MainViewModel) -> Unit) {
     object ChatInfoDialog : ElysmeDialog(::ChatInfoView)
     object ChatMediaDialog : ElysmeDialog(::ChatMediaView)
     object ProfileInfoDialog : ElysmeDialog(::ProfileInfoView)
+    object BackupImportDialog : ElysmeDialog(::ImportProgressView)
 }
+
+data class AccountImportState(
+    val progress: Float = 0f,
+    val isImporting: Boolean = false,
+    val error: Boolean = false,
+    val started: Boolean = false
+)
 
 class MainViewModel : ViewModel() {
     val rpc = Rpc(System.getenv("RPC_SERVER_PATH"), System.getenv("DC_ACCOUNTS_PATH"))
@@ -67,11 +77,17 @@ class MainViewModel : ViewModel() {
     var currentChat by mutableStateOf<DcChat?>(null)
     var currentContact by mutableStateOf<DcContact?>(null)
 
+    private val _accounts = MutableStateFlow<List<DcAccount>>(listOf())
+    val accounts = _accounts.asStateFlow()
+
+    private val _importState = MutableStateFlow(AccountImportState())
+    val importState = _importState.asStateFlow()
+
     var editing by mutableStateOf(false)
     var currentReplyTo by mutableStateOf<DcMessage?>(null)
     var currentFile by mutableStateOf<File?>(null)
 
-    val screen = mutableStateOf<Screen>(Screen.MainScreen)
+    val screen = mutableStateOf<Screen>(Screen.None)
 
     private val _chats = MutableStateFlow<List<DcChatListItem>>(listOf())
     val chats = _chats.asStateFlow()
@@ -85,12 +101,43 @@ class MainViewModel : ViewModel() {
         rpc.start()
 
         viewModelScope.launch(Dispatchers.IO) {
-            currentAccountId = getSelectedAccountId()
-
-            loadChats()
+            tryStart()
         }
 
         rpc.addListener(::handleEvent)
+    }
+
+    private fun tryStart() {
+        if (loadAccounts()) {
+            currentAccountId = getSelectedAccountId()
+
+            loadChats()
+
+            rpc.send(RpcMethod.start_io_for_all_accounts.makeRequest())
+
+            viewModelScope.launch {
+                screen.value = Screen.MainScreen
+            }
+        } else {
+            viewModelScope.launch {
+                screen.value = Screen.ImportBackupScreen
+            }
+        }
+    }
+
+    private fun loadAccounts(): Boolean {
+        val accs = gson.fromJson(
+            rpc.send(RpcMethod.get_all_accounts.makeRequest()).result,
+            object : TypeToken<List<DcAccount>>() {}
+        )
+
+        if (accs.isEmpty()) {
+            return false
+        }
+
+        _accounts.update { accs }
+
+        return true
     }
 
     private fun getSelectedAccountId(): Int {
@@ -171,11 +218,48 @@ class MainViewModel : ViewModel() {
             "ChatlistChanged", "ChatlistItemChanged" -> {
                 loadChats()
             }
+
+            "ImexProgress" -> {
+                val progress = event.get("progress").asInt
+
+                _importState.update {
+                    AccountImportState(
+                        progress = progress / 999f,
+                        isImporting = progress in 1..<1000,
+                        error = progress == 0,
+                        started = true
+                    )
+                }
+
+                if (progress == 1000) {
+                    tryStart()
+                }
+            }
+
+            "AccountsChanged" -> {
+
+            }
+
+            "AccountsItemChanged" -> {
+
+            }
         }
     }
 
     fun importBackup(backupFilePath: String) {
-        screen.value = Screen.MainScreen
+        dialog = ElysmeDialog.BackupImportDialog
+        dialogVisible = true
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val newAccountId = rpc.send(RpcMethod.add_account.makeRequest()).result.asInt
+
+            val importBackupRequest = RpcMethod.import_backup.makeRequest()
+            importBackupRequest.addParam(newAccountId)
+            importBackupRequest.addParam(backupFilePath)
+            importBackupRequest.addParam(null)
+
+            rpc.send(importBackupRequest)
+        }
     }
 
     fun showChat(id: Int) {
@@ -236,7 +320,9 @@ class MainViewModel : ViewModel() {
 
             val sentMessageId = rpc.send(sendMessageRequest).result.asInt
 
-            messages.getOrPut(currentChat!!.id) { mutableStateListOf() } += DcMessageListItem(sentMessageId)
+            viewModelScope.launch {
+                messages.getOrPut(currentChat!!.id) { mutableStateListOf() } += DcMessageListItem(sentMessageId)
+            }
         }
     }
 

@@ -56,13 +56,24 @@ fun App(modifier: Modifier = Modifier) {
             .safeContentPadding()
             .fillMaxSize(),
     ) {
+        if (model.dialogVisible) {
+            Dialog(onDismissRequest = { model.dialogVisible = false }) {
+                model.dialog.content(model)
+            }
+        }
+
         Crossfade(
             targetState = currentScreen,
             animationSpec = tween(durationMillis = 1000),
             label = "Screen Crossfade"
         ) { screen ->
             when (screen) {
-                is Screen.ImportBackupScreen -> ImportBackupView { model.importBackup(backupFilePath = it) }
+                is Screen.None -> {}
+
+                is Screen.ImportBackupScreen -> ImportBackupView(modifier = Modifier.fillMaxSize()) {
+                    model.importBackup(backupFilePath = it)
+                }
+
                 is Screen.MainScreen -> MainScreen(modifier = Modifier.fillMaxSize(), model = model)
             }
         }
@@ -74,12 +85,6 @@ private fun MainScreen(
     modifier: Modifier = Modifier,
     model: MainViewModel
 ) {
-    if (model.dialogVisible && model.currentChat != null) {
-        Dialog(onDismissRequest = { model.dialogVisible = false }) {
-            model.dialog.content(model)
-        }
-    }
-
     HorizontalSplitPane(
         modifier = modifier,
         splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.25f)

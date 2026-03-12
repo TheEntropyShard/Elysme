@@ -20,8 +20,10 @@ package me.theentropyshard.elysme.ui.backup
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +31,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import me.theentropyshard.elysme.ui.ChooseFileDialog
 import me.theentropyshard.elysme.ui.theme.Fonts
 
@@ -44,6 +49,15 @@ fun ImportBackupView(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Text(
+            text = "You don't have any accounts set up",
+            textAlign = TextAlign.Center,
+            fontSize = 32.sp,
+            fontFamily = Fonts.googleSans(),
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
         Button(
             onClick = { dialogVisible = true },
         ) {
