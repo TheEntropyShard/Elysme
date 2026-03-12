@@ -30,12 +30,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import elysme.composeapp.generated.resources.Res
+import elysme.composeapp.generated.resources.campaign24dp
+import elysme.composeapp.generated.resources.group24dp
+import me.theentropyshard.elysme.deltachat.model.ChatType
 import me.theentropyshard.elysme.deltachat.model.DcChatListItem
 import me.theentropyshard.elysme.extensions.toColor
 import me.theentropyshard.elysme.ui.components.FreshMessageCounter
 import me.theentropyshard.elysme.ui.components.ProfileImage
 import me.theentropyshard.elysme.ui.components.TimeText
 import me.theentropyshard.elysme.ui.theme.Fonts
+import org.jetbrains.compose.resources.painterResource
 import java.time.temporal.ChronoUnit
 
 @Composable
@@ -62,7 +67,25 @@ fun ChatListItem(
         Spacer(modifier = Modifier.width(8.dp))
 
         Column {
-            Row {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                when (chat.chatType) {
+                    ChatType.Group -> Icon(
+                        modifier = Modifier.size(16.dp),
+                        painter = painterResource(Res.drawable.group24dp),
+                        contentDescription = null
+                    )
+
+                    ChatType.InBroadcast, ChatType.OutBroadcast -> Icon(
+                        modifier = Modifier.size(16.dp),
+                        painter = painterResource(Res.drawable.campaign24dp),
+                        contentDescription = null
+                    )
+
+                    else -> {}
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
                 Text(
                     text = chat.name,
                     fontWeight = FontWeight.Medium,
