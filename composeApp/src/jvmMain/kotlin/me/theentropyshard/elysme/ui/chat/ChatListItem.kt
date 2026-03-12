@@ -33,9 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import elysme.composeapp.generated.resources.Res
-import elysme.composeapp.generated.resources.campaign24dp
-import elysme.composeapp.generated.resources.group24dp
+import elysme.composeapp.generated.resources.*
 import me.theentropyshard.elysme.deltachat.model.ChatType
 import me.theentropyshard.elysme.deltachat.model.DcChatListItem
 import me.theentropyshard.elysme.extensions.toColor
@@ -98,6 +96,24 @@ fun ChatListItem(
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
+
+                when (chat.summaryStatus) {
+                    26 -> Icon(
+                        modifier = Modifier.size(16.dp),
+                        painter = painterResource(Res.drawable.unread24dp),
+                        tint = MaterialTheme.colorScheme.primary,
+                        contentDescription = null
+                    )
+
+                    28 -> Icon(
+                        modifier = Modifier.size(16.dp),
+                        painter = painterResource(Res.drawable.read24dp),
+                        tint = MaterialTheme.colorScheme.primary,
+                        contentDescription = null
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
 
                 TimeText(
                     timestamp = chat.lastUpdated,
