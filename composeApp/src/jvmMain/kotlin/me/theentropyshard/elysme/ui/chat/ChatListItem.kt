@@ -27,8 +27,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import elysme.composeapp.generated.resources.Res
 import elysme.composeapp.generated.resources.campaign24dp
@@ -103,10 +106,14 @@ fun ChatListItem(
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
+                val primary = MaterialTheme.colorScheme.primary
+
                 val summary = remember(chat.summaryText1, chat.summaryText2) {
-                    buildString {
-                        if (chat.summaryText1 != null && chat.summaryText1.isNotEmpty()) {
-                            append(chat.summaryText1).append(": ")
+                    buildAnnotatedString {
+                        if (!chat.summaryText1.isNullOrEmpty()) {
+                            withStyle(style = SpanStyle(color = primary)) {
+                                append("${chat.summaryText1}: ")
+                            }
                         }
 
                         append(chat.summaryText2)
