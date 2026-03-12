@@ -71,21 +71,19 @@ fun ChatListItem(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 when (chat.chatType) {
                     ChatType.Group -> Icon(
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.padding(end = 4.dp).size(16.dp),
                         painter = painterResource(Res.drawable.group24dp),
                         contentDescription = null
                     )
 
                     ChatType.InBroadcast, ChatType.OutBroadcast -> Icon(
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.padding(end = 4.dp).size(16.dp),
                         painter = painterResource(Res.drawable.campaign24dp),
                         contentDescription = null
                     )
 
                     else -> {}
                 }
-
-                Spacer(modifier = Modifier.width(4.dp))
 
                 Text(
                     text = chat.name,
@@ -99,21 +97,19 @@ fun ChatListItem(
 
                 when (chat.summaryStatus) {
                     26 -> Icon(
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.padding(end = 4.dp).size(16.dp),
                         painter = painterResource(Res.drawable.unread24dp),
                         tint = MaterialTheme.colorScheme.primary,
                         contentDescription = null
                     )
 
                     28 -> Icon(
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.padding(end = 4.dp).size(16.dp),
                         painter = painterResource(Res.drawable.read24dp),
                         tint = MaterialTheme.colorScheme.primary,
                         contentDescription = null
                     )
                 }
-
-                Spacer(modifier = Modifier.width(4.dp))
 
                 TimeText(
                     timestamp = chat.lastUpdated,
