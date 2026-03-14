@@ -219,6 +219,19 @@ class MainViewModel : ViewModel() {
                 loadChats()
             }
 
+            "ChatModified" -> {
+                val chatId = event.get("chatId").asInt
+
+                if (currentChat != null && currentChat!!.id == chatId) {
+                    val chatRequest = GetFullChatByIdRequest().apply {
+                        setAccountId(currentAccountId)
+                        setChatId(chatId)
+                    }
+
+                    currentChat = gson.fromJson(rpc.send(chatRequest).result, DcChat::class.java)
+                }
+            }
+
             "ImexProgress" -> {
                 val progress = event.get("progress").asInt
 
@@ -269,7 +282,7 @@ class MainViewModel : ViewModel() {
                 setChatId(id)
             }
 
-            val chat = Gson().fromJson(rpc.send(chatRequest).result, DcChat::class.java)
+            val chat = gson.fromJson(rpc.send(chatRequest).result, DcChat::class.java)
 
             if (messages.containsKey(id)) {
                 currentChat = chat
@@ -282,7 +295,7 @@ class MainViewModel : ViewModel() {
                         setAddDaymarker(true)
                     }
 
-                    val messageListItems = Gson().fromJson(
+                    val messageListItems = gson.fromJson(
                         rpc.send(messageListItemsRequest).result,
                         object : TypeToken<List<DcMessageListItem>>() {})
 
