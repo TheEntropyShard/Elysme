@@ -371,4 +371,24 @@ class MainViewModel : ViewModel() {
         dialog = ElysmeDialog.ProfileInfoDialog
         dialogVisible = true
     }
+
+    fun acceptChat(chatId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val request = RpcMethod.accept_chat.makeRequest()
+            request.addParam(currentAccountId)
+            request.addParam(chatId)
+
+            rpc.send(request)
+        }
+    }
+
+    fun blockChat(chatId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val request = RpcMethod.block_chat.makeRequest()
+            request.addParam(currentAccountId)
+            request.addParam(chatId)
+
+            rpc.send(request)
+        }
+    }
 }

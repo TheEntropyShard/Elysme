@@ -102,7 +102,7 @@ fun ChatView(
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Button(
-                            onClick = {},
+                            onClick = { model.blockChat(model.currentChat!!.id) },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.error,
                                 contentColor = MaterialTheme.colorScheme.onError
@@ -112,7 +112,7 @@ fun ChatView(
                         }
 
                         Button(
-                            onClick = {},
+                            onClick = { model.acceptChat(model.currentChat!!.id) },
                         ) {
                             Text(text = "Accept")
                         }
