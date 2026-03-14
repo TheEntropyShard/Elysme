@@ -86,6 +86,39 @@ fun ChatView(
                     model.replyTo(it)
                 }
 
+                if (model.currentChat!!.isIsContactRequest) {
+                    Box(
+                        modifier = Modifier
+                            .background(color = MaterialTheme.colorScheme.secondaryContainer)
+                            .fillMaxWidth()
+                            .height(1.dp),
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Button(
+                            onClick = {},
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onError
+                            )
+                        ) {
+                            Text(text = "Block")
+                        }
+
+                        Button(
+                            onClick = {},
+                        ) {
+                            Text(text = "Accept")
+                        }
+                    }
+                }
+
                 if (model.currentChat!!.isCanSend) {
                     Box(
                         modifier = Modifier
