@@ -104,9 +104,16 @@ fun ChatInfoView(model: MainViewModel) {
                                 model.dialog = ElysmeDialog.ProfileInfoDialog
                                 model.dialogVisible = true
                             },
-                            onClickRemove = {
-
-                            }
+                            trailingIcon = {
+                                if (it.displayName != "Me") {
+                                    IconButton(onClick = {}) {
+                                        Icon(
+                                            painter = painterResource(Res.drawable.close24dp),
+                                            contentDescription = "Remove contact"
+                                        )
+                                    }
+                                }
+                            },
                         )
                     }
                 }
@@ -116,11 +123,11 @@ fun ChatInfoView(model: MainViewModel) {
 }
 
 @Composable
-private fun ContactListItem(
+fun ContactListItem(
     modifier: Modifier = Modifier,
     contact: DcContact,
+    trailingIcon: @Composable () -> Unit = {},
     onClick: () -> Unit,
-    onClickRemove: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -148,15 +155,8 @@ private fun ContactListItem(
             fontFamily = Fonts.googleSans()
         )
 
-        if (contact.displayName != "Me") {
-            Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(1f))
 
-            IconButton(onClick = onClickRemove) {
-                Icon(
-                    painter = painterResource(Res.drawable.close24dp),
-                    contentDescription = "Remove contact"
-                )
-            }
-        }
+        trailingIcon()
     }
 }

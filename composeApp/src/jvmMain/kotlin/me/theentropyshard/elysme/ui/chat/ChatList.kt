@@ -38,6 +38,7 @@ import elysme.composeapp.generated.resources.addbig24dp
 import elysme.composeapp.generated.resources.chat24dp
 import elysme.composeapp.generated.resources.close24dp
 import me.theentropyshard.elysme.deltachat.model.DcChatListItem
+import me.theentropyshard.elysme.viewmodel.ElysmeDialog
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
 
@@ -65,7 +66,10 @@ fun ChatList(
                 .align(Alignment.BottomEnd)
                 .padding(end = 16.dp, bottom = 16.dp),
             shape = CircleShape,
-            onClick = {}
+            onClick = {
+                model.dialog = ElysmeDialog.NewChatDialog
+                model.dialogVisible = true
+            }
         ) {
             Icon(
                 painter = painterResource(Res.drawable.addbig24dp),

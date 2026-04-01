@@ -39,6 +39,7 @@ import me.theentropyshard.elysme.extensions.toBufferedImage
 import me.theentropyshard.elysme.ui.backup.ImportProgressView
 import me.theentropyshard.elysme.ui.dialog.ChatInfoView
 import me.theentropyshard.elysme.ui.dialog.ChatMediaView
+import me.theentropyshard.elysme.ui.dialog.NewChatView
 import me.theentropyshard.elysme.ui.dialog.ProfileInfoView
 import java.awt.Image
 import java.io.File
@@ -56,6 +57,7 @@ sealed class ElysmeDialog(val content: @Composable (MainViewModel) -> Unit) {
     object ChatMediaDialog : ElysmeDialog(::ChatMediaView)
     object ProfileInfoDialog : ElysmeDialog(::ProfileInfoView)
     object BackupImportDialog : ElysmeDialog(::ImportProgressView)
+    object NewChatDialog : ElysmeDialog(::NewChatView)
 }
 
 data class AccountImportState(
