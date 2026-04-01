@@ -23,15 +23,20 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import elysme.composeapp.generated.resources.Res
+import elysme.composeapp.generated.resources.add24dp
+import elysme.composeapp.generated.resources.addbig24dp
 import elysme.composeapp.generated.resources.chat24dp
+import elysme.composeapp.generated.resources.close24dp
 import me.theentropyshard.elysme.deltachat.model.DcChatListItem
 import me.theentropyshard.elysme.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
@@ -59,10 +64,11 @@ fun ChatList(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 16.dp, bottom = 16.dp),
+            shape = CircleShape,
             onClick = {}
         ) {
             Icon(
-                painter = painterResource(Res.drawable.chat24dp),
+                painter = painterResource(Res.drawable.addbig24dp),
                 contentDescription = ""
             )
         }
