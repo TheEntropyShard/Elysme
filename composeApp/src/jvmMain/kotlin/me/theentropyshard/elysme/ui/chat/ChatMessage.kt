@@ -162,25 +162,25 @@ fun ChatMessage(
                     onDismissRequest = { menuVisible = false },
                     items = {
                         mutableListOf(
-                            MessageMenuItem(
+                            MessageMenuItem.ActionMenuItem(
                                 icon = Res.drawable.reply24dp,
                                 text = "Reply",
                                 description = "Reply to the message",
                                 onClick = { onReply(message) }
                             ),
-                            MessageMenuItem(
+                            MessageMenuItem.ActionMenuItem(
                                 icon = Res.drawable.copy24dp,
                                 text = "Copy text",
                                 description = "Copy text of the message",
                                 onClick = { clipboard.awtClipboard?.setContents(StringSelection(message.text), null) }
                             ),
-                            MessageMenuItem(
+                            MessageMenuItem.ActionMenuItem(
                                 icon = Res.drawable.forwardmsg24dp,
                                 text = "Forward",
                                 description = "Forward the message",
                                 onClick = {}
                             ),
-                            MessageMenuItem(
+                            MessageMenuItem.ActionMenuItem(
                                 icon = Res.drawable.delete24dp,
                                 text = "Delete",
                                 description = "Delete the message",
@@ -190,7 +190,7 @@ fun ChatMessage(
                             if (myself) {
                                 add(
                                     index = 1,
-                                    element = MessageMenuItem(
+                                    element = MessageMenuItem.ActionMenuItem(
                                         icon = Res.drawable.edit24dp,
                                         text = "Edit",
                                         description = "Edit the message",

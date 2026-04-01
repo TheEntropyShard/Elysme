@@ -18,15 +18,18 @@
 
 package me.theentropyshard.elysme.ui.chat
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -42,8 +45,11 @@ import me.theentropyshard.elysme.ui.components.ProfileImage
 import me.theentropyshard.elysme.ui.components.TimeText
 import me.theentropyshard.elysme.ui.theme.Fonts
 import org.jetbrains.compose.resources.painterResource
+import java.awt.Point
+import java.awt.event.MouseEvent
 import java.time.temporal.ChronoUnit
 
+@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ChatListItem(
     modifier: Modifier = Modifier,
@@ -51,10 +57,80 @@ fun ChatListItem(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    var menuVisible by remember { mutableStateOf(false) }
+    var menuOffset by remember { mutableStateOf(Offset.Zero) }
+
+    MessageContextMenu(
+        visible = menuVisible,
+        position = menuOffset,
+        onDismissRequest = { menuVisible = false },
+        items = {
+            listOf(
+                MessageMenuItem.ActionMenuItem(
+                    icon = Res.drawable.pin24dp,
+                    text = "Pin chat",
+                    description = "",
+                    onClick = {}
+                ),
+                MessageMenuItem.ActionMenuItem(
+                    icon = Res.drawable.notificationoff24dp,
+                    text = "Disable notifications",
+                    description = "",
+                    onClick = {}
+                ),
+                MessageMenuItem.ActionMenuItem(
+                    icon = Res.drawable.archive24dp,
+                    text = "Archive chat",
+                    description = "",
+                    onClick = {}
+                ),
+                MessageMenuItem.Separator(),
+                MessageMenuItem.ActionMenuItem(
+                    icon = Res.drawable.account24dp,
+                    text = "View profile",
+                    description = "",
+                    onClick = {}
+                ),
+                MessageMenuItem.ActionMenuItem(
+                    icon = Res.drawable.encrypted24dp,
+                    text = "View encryption info",
+                    description = "",
+                    onClick = {}
+                ),
+                MessageMenuItem.ActionMenuItem(
+                    icon = Res.drawable.leave24dp,
+                    text = "Leave",
+                    description = "",
+                    onClick = {}
+                ),
+                MessageMenuItem.ActionMenuItem(
+                    icon = Res.drawable.delete24dp,
+                    text = "Delete chat",
+                    description = "",
+                    onClick = {}
+                ),
+            )
+        }
+    )
+
     Row(
         modifier = modifier
+            .pointerHoverIcon(icon = PointerIcon.Hand)
             .background(color = if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Unspecified)
             .clickable { onClick() }
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent()
+
+                        if (event.type == PointerEventType.Release && event.button?.isSecondary ?: false) {
+                            val point = (event.nativeEvent as MouseEvent).point
+                            menuOffset = Offset(point.x.toFloat(), point.y.toFloat())
+                            menuVisible = true
+                        }
+                    }
+                }
+            }
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         ProfileImage(

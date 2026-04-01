@@ -33,12 +33,16 @@ import me.theentropyshard.elysme.ui.theme.Fonts
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
-data class MessageMenuItem(
-    val icon: DrawableResource,
-    val text: String,
-    val description: String,
-    val onClick: () -> Unit
-)
+sealed class MessageMenuItem {
+    data class ActionMenuItem(
+        val icon: DrawableResource,
+        val text: String,
+        val description: String,
+        val onClick: () -> Unit
+    ) : MessageMenuItem()
+
+    class Separator : MessageMenuItem()
+}
 
 @Composable
 fun MessageContextMenu(
@@ -60,27 +64,35 @@ fun MessageContextMenu(
         val collection = items()
 
         for (item in collection) {
-            DropdownMenuItem(
-                modifier = Modifier.height(32.dp),
-                enabled = true,
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(item.icon),
-                        contentDescription = item.description
+            when (item) {
+                is MessageMenuItem.ActionMenuItem -> {
+                    DropdownMenuItem(
+                        modifier = Modifier.height(32.dp),
+                        enabled = true,
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(item.icon),
+                                contentDescription = item.description
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = item.text,
+                                fontFamily = Fonts.googleSans(),
+                                fontWeight = FontWeight.Normal
+                            )
+                        },
+                        onClick = {
+                            onDismissRequest()
+                            item.onClick()
+                        }
                     )
-                },
-                text = {
-                    Text(
-                        text = item.text,
-                        fontFamily = Fonts.googleSans(),
-                        fontWeight = FontWeight.Normal
-                    )
-                },
-                onClick = {
-                    onDismissRequest()
-                    item.onClick()
                 }
-            )
+
+                is MessageMenuItem.Separator -> {
+                    HorizontalDivider()
+                }
+            }
         }
     }
 }
