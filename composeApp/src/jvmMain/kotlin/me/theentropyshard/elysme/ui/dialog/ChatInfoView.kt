@@ -29,6 +29,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -132,6 +134,7 @@ fun ContactListItem(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
+            .pointerHoverIcon(icon = PointerIcon.Hand)
             .fillMaxWidth()
             .clickable { onClick() }
             .minimumInteractiveComponentSize(),

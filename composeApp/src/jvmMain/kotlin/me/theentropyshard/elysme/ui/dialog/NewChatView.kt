@@ -46,6 +46,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -151,6 +153,7 @@ private fun SpecialItem(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
+            .pointerHoverIcon(icon = PointerIcon.Hand)
             .fillMaxWidth()
             .clickable { onClick() }
             .minimumInteractiveComponentSize(),
