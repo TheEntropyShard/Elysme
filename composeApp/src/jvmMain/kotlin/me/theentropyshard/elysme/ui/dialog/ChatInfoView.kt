@@ -93,7 +93,7 @@ fun ChatInfoView(model: MainViewModel) {
                 request.addParam(chat.contactIds)
 
                 val contactsObject =
-                    Gson().fromJson(
+                    model.gson.fromJson(
                         model.rpc.send(request).result,
                         object : TypeToken<Map<String, DcContact>>() {})
 

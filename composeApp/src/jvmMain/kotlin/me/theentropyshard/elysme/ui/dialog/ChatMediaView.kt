@@ -100,7 +100,7 @@ fun ChatMediaView(model: MainViewModel) {
                 mediaIdsRequest.addParam(null)
                 mediaIdsRequest.addParam(null)
 
-                val mediaIdsResult = Gson().fromJson(model.rpc.send(mediaIdsRequest).result, IntArray::class.java)
+                val mediaIdsResult = model.gson.fromJson(model.rpc.send(mediaIdsRequest).result, IntArray::class.java)
 
                 when (typeName) {
                     "Image" -> {
@@ -126,7 +126,7 @@ fun ChatMediaView(model: MainViewModel) {
 
 @Composable
 private fun ImageGrid(model: MainViewModel, messageIds: IntArray) {
-    val gson = Gson()
+    val gson = model.gson
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(128.dp),
@@ -166,7 +166,7 @@ private fun FileList(model: MainViewModel, messageIds: IntArray) {
     }
 
     val messages = ArrayList(
-        Gson().fromJson(
+        model.gson.fromJson(
             model.rpc.send(messagesRequest).result,
             object : TypeToken<Map<String, DcMessage>>() {}).values
     )
