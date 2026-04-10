@@ -25,6 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import kotlin.math.max
 
+private enum class SlotId {
+    Attachment, Text, Top, Bottom, Quote, AttachmentRem, TextRem
+}
+
 @Composable
 fun ChatMessageLayout(
     modifier: Modifier = Modifier,
@@ -37,10 +41,10 @@ fun ChatMessageLayout(
     SubcomposeLayout(modifier = modifier) { constraints ->
         val minimum = constraints.copy(minWidth = 0, minHeight = 0)
 
-        val attachmentPlaceables = subcompose("attachment", content = attachment).map { it.measure(minimum) }
+        val attachmentPlaceables = subcompose(SlotId.Attachment, content = attachment).map { it.measure(minimum) }
         val attachmentWidth = attachmentPlaceables.maxOfOrNull { it.width } ?: 0
 
-        val textPlaceables = subcompose("text", content = text).map { it.measure(minimum) }
+        val textPlaceables = subcompose(SlotId.Text, content = text).map { it.measure(minimum) }
         val textWidth = textPlaceables.maxOfOrNull { it.width } ?: 0
 
         val maxWidth = if (attachmentWidth > 0) attachmentWidth else textWidth
@@ -49,25 +53,23 @@ fun ChatMessageLayout(
         val exact = constraints.copy(minWidth = parentWidth, maxWidth = constraints.maxWidth, minHeight = 0)
 
         val topPlaceables = subcompose(
-            "top", content = { Box(modifier = Modifier.width(parentWidth.toDp())) { topRow() } }
+            SlotId.Top, content = { Box(modifier = Modifier.width(parentWidth.toDp())) { topRow() } }
         ).map { it.measure(exact) }
 
         val bottomPlaceables = subcompose(
-            "bottom", content = { Box(modifier = Modifier.width(parentWidth.toDp())) { bottomRow() } }
+            SlotId.Bottom, content = { Box(modifier = Modifier.width(parentWidth.toDp())) { bottomRow() } }
         ).map { it.measure(exact) }
 
         val quotePlaceables = subcompose(
-            "quote", content = { Box(modifier = Modifier.width(parentWidth.toDp())) { quote() } }
+            SlotId.Quote, content = { Box(modifier = Modifier.width(parentWidth.toDp())) { quote() } }
         ).map { it.measure(exact) }
 
         val attachmentRem = subcompose(
-            "attachmentRem",
-            content = { Box(modifier = Modifier.width(parentWidth.toDp())) { attachment() } }
+            SlotId.AttachmentRem, content = { Box(modifier = Modifier.width(parentWidth.toDp())) { attachment() } }
         ).map { it.measure(exact) }
 
         val textRem = subcompose(
-            "textRem",
-            content = { Box(modifier = Modifier.width(parentWidth.toDp())) { text() } }
+            SlotId.TextRem, content = { Box(modifier = Modifier.width(parentWidth.toDp())) { text() } }
         ).map { it.measure(exact) }
 
         val allPlaceables = topPlaceables + quotePlaceables + attachmentRem + textRem + bottomPlaceables
