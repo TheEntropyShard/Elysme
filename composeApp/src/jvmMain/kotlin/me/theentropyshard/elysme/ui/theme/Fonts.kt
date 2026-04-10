@@ -34,15 +34,30 @@ import elysme.composeapp.generated.resources.googlesans_semibold_italic
 import org.jetbrains.compose.resources.Font
 
 object Fonts {
+    private lateinit var googleSansFamily: FontFamily
+
+    // @formatter:off
+
     @Composable
-    fun googleSans() = FontFamily(
-        Font(Res.font.googlesans_regular, FontWeight.Normal, FontStyle.Normal),
-        Font(Res.font.googlesans_italic, FontWeight.Normal, FontStyle.Italic),
-        Font(Res.font.googlesans_medium, FontWeight.Medium, FontStyle.Normal),
-        Font(Res.font.googlesans_medium_italic, FontWeight.Medium, FontStyle.Italic),
-        Font(Res.font.googlesans_semibold, FontWeight.SemiBold, FontStyle.Normal),
-        Font(Res.font.googlesans_semibold_italic, FontWeight.SemiBold, FontStyle.Italic),
-        Font(Res.font.googlesans_bold, FontWeight.Bold, FontStyle.Normal),
-        Font(Res.font.googlesans_bold_italic, FontWeight.Bold, FontStyle.Italic),
-    )
+    fun googleSans(): FontFamily {
+        if (!Fonts::googleSansFamily.isInitialized) {
+            googleSansFamily = FontFamily(
+                Font(Res.font.googlesans_regular,         FontWeight.Normal,   FontStyle.Normal),
+                Font(Res.font.googlesans_italic,          FontWeight.Normal,   FontStyle.Italic),
+
+                Font(Res.font.googlesans_medium,          FontWeight.Medium,   FontStyle.Normal),
+                Font(Res.font.googlesans_medium_italic,   FontWeight.Medium,   FontStyle.Italic),
+
+                Font(Res.font.googlesans_semibold,        FontWeight.SemiBold, FontStyle.Normal),
+                Font(Res.font.googlesans_semibold_italic, FontWeight.SemiBold, FontStyle.Italic),
+
+                Font(Res.font.googlesans_bold,            FontWeight.Bold,     FontStyle.Normal),
+                Font(Res.font.googlesans_bold_italic,     FontWeight.Bold,     FontStyle.Italic),
+            )
+        }
+
+        return googleSansFamily
+    }
+
+    // @formatter:on
 }
