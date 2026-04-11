@@ -18,11 +18,13 @@
 
 package me.theentropyshard.elysme.ui.dialog
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.minimumInteractiveComponentSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -77,6 +79,29 @@ fun ChatInfoView(model: MainViewModel) {
                 fontSize = 24.sp,
                 fontFamily = Fonts.googleSans()
             )
+
+            val request = RpcMethod.get_chat_description.makeRequest()
+            request.addParam(model.currentAccountId)
+            request.addParam(chat.id)
+
+            val description = model.rpc.send(request).result.asString
+
+            if (description.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                SelectionContainer(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                ) {
+                    Text(
+                        modifier = Modifier.padding(8.dp),
+                        text = description,
+                        fontFamily = Fonts.googleSans(),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
 
             if (chat.chatType == "Group" || chat.chatType == "OutBroadcast") {
                 Spacer(modifier = Modifier.height(8.dp))
