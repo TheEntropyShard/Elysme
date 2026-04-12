@@ -99,7 +99,7 @@ fun ChatMessage(
 ) {
     val displayName = message.sender?.displayName ?: "<unknown user>"
     val profileImage = message.sender?.profileImage
-    val myself = displayName == "Me"
+    val myself = message.sender?.id == model.currentAccount!!.id
     val read = message.state == 28
 
     val senderColor = if (message.sender != null) {
