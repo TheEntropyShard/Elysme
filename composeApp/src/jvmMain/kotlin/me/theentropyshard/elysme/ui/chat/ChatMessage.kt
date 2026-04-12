@@ -369,6 +369,10 @@ fun ChatMessage(
     }
 }
 
+/**
+ * Accepts a map where keys are contact IDs and values are lists of reactions
+ * Returns a map where keys are reactions and values are sets of contact IDs
+ */
 private fun transformReactions(reactions: Map<String, List<String>>): Map<String, Set<String>> {
     val ret = mutableMapOf<String, MutableSet<String>>()
 
