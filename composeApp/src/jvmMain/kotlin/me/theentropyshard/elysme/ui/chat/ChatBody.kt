@@ -97,7 +97,7 @@ fun ChatBody(
                         when (message.kind) {
                             "message" -> {
                                 val request = GetSingleMessageRequest().apply {
-                                    setAccountId(model.currentAccountId)
+                                    setAccountId(model.currentAccount!!.id)
                                     setMsgId(message.msgId)
                                 }
 

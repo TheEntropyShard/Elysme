@@ -421,7 +421,7 @@ private fun ReactionItem(
     contacts: Set<String>,
 ) {
     val request = GetContactsByIdsRequest().apply {
-        setAccountId(model.currentAccountId)
+        setAccountId(model.currentAccount!!.id)
         setContactIds(contacts.map { it.toInt() })
     }
 

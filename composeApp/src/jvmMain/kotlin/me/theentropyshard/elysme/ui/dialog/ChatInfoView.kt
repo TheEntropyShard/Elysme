@@ -81,7 +81,7 @@ fun ChatInfoView(model: MainViewModel) {
             )
 
             val request = RpcMethod.get_chat_description.makeRequest()
-            request.addParam(model.currentAccountId)
+            request.addParam(model.currentAccount!!.id)
             request.addParam(chat.id)
 
             val description = model.rpc.send(request).result.asString
@@ -114,7 +114,7 @@ fun ChatInfoView(model: MainViewModel) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 val request = RpcMethod.get_contacts_by_ids.makeRequest()
-                request.addParam(model.currentAccountId)
+                request.addParam(model.currentAccount!!.id)
                 request.addParam(chat.contactIds)
 
                 val contactsObject =

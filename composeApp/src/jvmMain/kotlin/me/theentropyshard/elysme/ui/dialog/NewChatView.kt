@@ -70,7 +70,7 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun NewChatView(model: MainViewModel) {
     val request = RpcMethod.get_contacts.makeRequest()
-    request.addParam(model.currentAccountId)
+    request.addParam(model.currentAccount!!.id)
     request.addParam(2) // listFlags: DC_GCL_ADD_SELF
     request.addParam(null) // query
 

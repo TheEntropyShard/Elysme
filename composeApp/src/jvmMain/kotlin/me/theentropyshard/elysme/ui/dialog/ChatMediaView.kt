@@ -94,7 +94,7 @@ fun ChatMediaView(model: MainViewModel) {
                 val typeName = tabs[selectedTabIndex].typeName
 
                 val mediaIdsRequest = RpcMethod.get_chat_media.makeRequest()
-                mediaIdsRequest.addParam(model.currentAccountId)
+                mediaIdsRequest.addParam(model.currentAccount!!.id)
                 mediaIdsRequest.addParam(model.currentChat!!.id)
                 mediaIdsRequest.addParam(typeName)
                 mediaIdsRequest.addParam(null)
@@ -139,7 +139,7 @@ private fun ImageGrid(model: MainViewModel, messageIds: IntArray) {
 
             item(key = id) {
                 val request = GetSingleMessageRequest().apply {
-                    setAccountId(model.currentAccountId)
+                    setAccountId(model.currentAccount!!.id)
                     setMsgId(id)
                 }
 
@@ -161,7 +161,7 @@ private fun ImageGrid(model: MainViewModel, messageIds: IntArray) {
 @Composable
 private fun FileList(model: MainViewModel, messageIds: IntArray) {
     val messagesRequest = GetMessagesRequest().apply {
-        setAccountId(model.currentAccountId)
+        setAccountId(model.currentAccount!!.id)
         setMessageIds(messageIds)
     }
 

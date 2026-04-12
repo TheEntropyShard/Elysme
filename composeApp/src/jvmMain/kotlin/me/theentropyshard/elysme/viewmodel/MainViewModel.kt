@@ -29,6 +29,7 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.theentropyshard.elysme.deltachat.model.*
@@ -75,7 +76,7 @@ class MainViewModel : ViewModel() {
         .disableHtmlEscaping()
         .create()
 
-    var currentAccountId = 0
+    var currentAccount by mutableStateOf<DcAccount?>(null)
     var currentChat by mutableStateOf<DcChat?>(null)
     var currentContact by mutableStateOf<DcContact?>(null)
 
@@ -111,7 +112,8 @@ class MainViewModel : ViewModel() {
 
     private fun tryStart() {
         if (loadAccounts()) {
-            currentAccountId = getSelectedAccountId()
+            val id = getSelectedAccountId()
+            currentAccount = accounts.value.first { it.id == id }
 
             loadChats()
 
@@ -147,11 +149,11 @@ class MainViewModel : ViewModel() {
     }
 
     private fun loadChats() {
-        val entriesRequest = GetChatListEntriesRequest().apply { setAccountId(currentAccountId) }
+        val entriesRequest = GetChatListEntriesRequest().apply { setAccountId(currentAccount!!.id) }
         val entries = gson.fromJson(rpc.send(entriesRequest).result, IntArray::class.java)
 
         val itemsRequest = GetChatListItemsByEntriesRequest().apply {
-            setAccountId(currentAccountId)
+            setAccountId(currentAccount!!.id)
             setEntries(entries)
         }
 
@@ -226,7 +228,7 @@ class MainViewModel : ViewModel() {
 
                 if (currentChat != null && currentChat!!.id == chatId) {
                     val chatRequest = GetFullChatByIdRequest().apply {
-                        setAccountId(currentAccountId)
+                        setAccountId(currentAccount!!.id)
                         setChatId(chatId)
                     }
 
@@ -280,7 +282,7 @@ class MainViewModel : ViewModel() {
     fun showChat(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             val chatRequest = GetFullChatByIdRequest().apply {
-                setAccountId(currentAccountId)
+                setAccountId(currentAccount!!.id)
                 setChatId(id)
             }
 
@@ -291,7 +293,7 @@ class MainViewModel : ViewModel() {
             } else {
                 viewModelScope.launch(Dispatchers.IO) {
                     val messageListItemsRequest = GetMessageListItemsRequest().apply {
-                        setAccountId(currentAccountId)
+                        setAccountId(currentAccount!!.id)
                         setChatId(id)
                         setInfoOnly(false)
                         setAddDaymarker(true)
@@ -320,7 +322,7 @@ class MainViewModel : ViewModel() {
 
         viewModelScope.launch(Dispatchers.IO) {
             val sendMessageRequest = SendMessageRequest().apply {
-                setAccountId(currentAccountId)
+                setAccountId(currentAccount!!.id)
                 setChatId(currentChat!!.id)
                 setText(message)
                 setQuotedMessageId(currentReplyTo?.id)
@@ -344,7 +346,7 @@ class MainViewModel : ViewModel() {
     fun editMessage(newText: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val request = RpcMethod.send_edit_request.makeRequest()
-            request.addParam(currentAccountId)
+            request.addParam(currentAccount!!.id)
             request.addParam(currentReplyTo!!.id)
             request.addParam(newText)
 
@@ -390,7 +392,7 @@ class MainViewModel : ViewModel() {
     fun acceptChat(chatId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             val request = RpcMethod.accept_chat.makeRequest()
-            request.addParam(currentAccountId)
+            request.addParam(currentAccount!!.id)
             request.addParam(chatId)
 
             rpc.send(request)
@@ -400,7 +402,7 @@ class MainViewModel : ViewModel() {
     fun blockChat(chatId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             val request = RpcMethod.block_chat.makeRequest()
-            request.addParam(currentAccountId)
+            request.addParam(currentAccount!!.id)
             request.addParam(chatId)
 
             rpc.send(request)
