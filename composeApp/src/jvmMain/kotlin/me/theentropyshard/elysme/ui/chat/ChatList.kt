@@ -19,7 +19,10 @@
 package me.theentropyshard.elysme.ui.chat
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -37,6 +40,7 @@ import elysme.composeapp.generated.resources.add24dp
 import elysme.composeapp.generated.resources.addbig24dp
 import elysme.composeapp.generated.resources.chat24dp
 import elysme.composeapp.generated.resources.close24dp
+import me.theentropyshard.elysme.TopBarHeight
 import me.theentropyshard.elysme.deltachat.model.DcChatListItem
 import me.theentropyshard.elysme.viewmodel.ElysmeDialog
 import me.theentropyshard.elysme.viewmodel.MainViewModel
@@ -50,31 +54,39 @@ fun ChatList(
 ) {
     val chats by model.chats.collectAsState()
 
-    Box(modifier = modifier) {
-        LazyColumn(modifier = Modifier.fillMaxHeight()) {
-            items(chats, key = { it.id }) {
-                ChatListItem(
-                    chat = it,
-                    selected = model.currentChat != null && model.currentChat!!.id == it.id,
-                    onClick = { onClick(it) }
+    Column(modifier = modifier) {
+        ChatListHeader(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(TopBarHeight)
+        )
+
+        Box {
+            LazyColumn(modifier = Modifier.fillMaxHeight()) {
+                items(chats, key = { it.id }) {
+                    ChatListItem(
+                        chat = it,
+                        selected = model.currentChat != null && model.currentChat!!.id == it.id,
+                        onClick = { onClick(it) }
+                    )
+                }
+            }
+
+            FloatingActionButton(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 16.dp, bottom = 16.dp),
+                shape = CircleShape,
+                onClick = {
+                    model.dialog = ElysmeDialog.NewChatDialog
+                    model.dialogVisible = true
+                }
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.addbig24dp),
+                    contentDescription = ""
                 )
             }
-        }
-
-        FloatingActionButton(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 16.dp, bottom = 16.dp),
-            shape = CircleShape,
-            onClick = {
-                model.dialog = ElysmeDialog.NewChatDialog
-                model.dialogVisible = true
-            }
-        ) {
-            Icon(
-                painter = painterResource(Res.drawable.addbig24dp),
-                contentDescription = ""
-            )
         }
     }
 }

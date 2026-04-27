@@ -43,6 +43,8 @@ import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
+val TopBarHeight = 56.dp
+
 @Composable
 @Preview
 fun App(modifier: Modifier = Modifier) {
