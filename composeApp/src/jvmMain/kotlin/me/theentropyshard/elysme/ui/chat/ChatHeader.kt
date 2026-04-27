@@ -44,7 +44,7 @@ fun ChatHeader(
     onMediaClick: () -> Unit,
 ) {
     Row(
-        modifier = modifier.padding(2.dp),
+        modifier = modifier.padding(horizontal = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(

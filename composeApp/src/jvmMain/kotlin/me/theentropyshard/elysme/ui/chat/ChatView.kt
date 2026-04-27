@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.awtClipboard
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import me.theentropyshard.elysme.TopBarHeight
 import me.theentropyshard.elysme.ui.theme.Fonts
 import me.theentropyshard.elysme.viewmodel.ElysmeDialog
 import me.theentropyshard.elysme.viewmodel.MainViewModel
@@ -59,6 +60,7 @@ fun ChatView(
                 ChatHeader(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(TopBarHeight)
                         .padding(start = 8.dp),
                     chat = currentChat,
                     onNameClick = {
