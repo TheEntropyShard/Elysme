@@ -63,6 +63,7 @@ fun ChatView(
                         .height(TopBarHeight)
                         .padding(start = 8.dp),
                     chat = currentChat,
+                    messageCount = messages?.size ?: 0,
                     onNameClick = {
                         model.dialog = ElysmeDialog.ChatInfoDialog
                         model.dialogVisible = true
