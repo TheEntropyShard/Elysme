@@ -18,16 +18,15 @@
 
 package me.theentropyshard.elysme.ui.chat
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import me.theentropyshard.elysme.ui.theme.Fonts
 import org.jetbrains.compose.resources.DrawableResource
@@ -52,45 +51,41 @@ fun MessageContextMenu(
     onDismissRequest: () -> Unit,
     items: () -> List<MessageMenuItem>
 ) {
-    var menuHeight by remember { mutableStateOf(0.0f) }
+    Box(modifier = modifier.offset(position.x.dp, position.y.dp)) {
+        DropdownMenu(
+            expanded = visible,
+            shape = RoundedCornerShape(16.dp),
+            onDismissRequest = onDismissRequest,
+        ) {
+            for (item in items()) {
+                when (item) {
+                    is MessageMenuItem.ActionMenuItem -> {
+                        DropdownMenuItem(
+                            modifier = Modifier.height(32.dp),
+                            enabled = true,
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(item.icon),
+                                    contentDescription = item.description
+                                )
+                            },
+                            text = {
+                                Text(
+                                    text = item.text,
+                                    fontFamily = Fonts.googleSans(),
+                                    fontWeight = FontWeight.Normal
+                                )
+                            },
+                            onClick = {
+                                onDismissRequest()
+                                item.onClick()
+                            }
+                        )
+                    }
 
-    DropdownMenu(
-        modifier = modifier.onSizeChanged { menuHeight = it.height.toFloat() },
-        expanded = visible,
-        shape = RoundedCornerShape(16.dp),
-        onDismissRequest = onDismissRequest,
-        offset = with(LocalDensity.current) { DpOffset(position.x.toDp(), (position.y + menuHeight).toDp()) }
-    ) {
-        val collection = items()
-
-        for (item in collection) {
-            when (item) {
-                is MessageMenuItem.ActionMenuItem -> {
-                    DropdownMenuItem(
-                        modifier = Modifier.height(32.dp),
-                        enabled = true,
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(item.icon),
-                                contentDescription = item.description
-                            )
-                        },
-                        text = {
-                            Text(
-                                text = item.text,
-                                fontFamily = Fonts.googleSans(),
-                                fontWeight = FontWeight.Normal
-                            )
-                        },
-                        onClick = {
-                            onDismissRequest()
-                            item.onClick()
-                        }
-                    )
-                }
-
-                is MessageMenuItem.Separator -> {
-                    HorizontalDivider()
+                    is MessageMenuItem.Separator -> {
+                        HorizontalDivider()
+                    }
                 }
             }
         }
