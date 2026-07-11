@@ -37,6 +37,7 @@ sealed class MessageMenuItem {
         val icon: DrawableResource,
         val text: String,
         val description: String,
+        val trailingContent: (@Composable () -> Unit)? = null,
         val onClick: () -> Unit
     ) : MessageMenuItem()
 
@@ -76,6 +77,7 @@ fun MessageContextMenu(
                                     fontWeight = FontWeight.Normal
                                 )
                             },
+                            trailingIcon = item.trailingContent,
                             onClick = {
                                 onDismissRequest()
                                 item.onClick()

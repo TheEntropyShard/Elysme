@@ -27,6 +27,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -46,6 +47,7 @@ import java.awt.Image
 import java.io.File
 import javax.imageio.ImageIO
 import kotlin.io.path.createTempFile
+import kotlin.time.Duration.Companion.milliseconds
 
 sealed class Screen {
     object None : Screen()
@@ -66,6 +68,17 @@ data class AccountImportState(
     val isImporting: Boolean = false,
     val error: Boolean = false,
     val started: Boolean = false
+)
+
+data class ReadReceipt(
+    val contact: DcContact,
+    val timestamp: Int
+)
+
+data class MessageSeenState(
+    val ready: Boolean = false,
+    val count: Int = 0,
+    val receipts: List<ReadReceipt> = emptyList()
 )
 
 class MainViewModel : ViewModel() {
@@ -96,6 +109,9 @@ class MainViewModel : ViewModel() {
     val chats = _chats.asStateFlow()
 
     val messages = mutableStateMapOf<Int, SnapshotStateList<DcMessageListItem>>()
+
+    private val _messageSeenState = MutableStateFlow(MessageSeenState())
+    val messageSeenState = _messageSeenState.asStateFlow()
 
     var dialogVisible by mutableStateOf(false)
     var dialog by mutableStateOf<ElysmeDialog>(ElysmeDialog.ChatInfoDialog)
@@ -406,6 +422,50 @@ class MainViewModel : ViewModel() {
             request.addParam(chatId)
 
             rpc.send(request)
+        }
+    }
+
+    fun loadReadReceipts(messageId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val request = RpcMethod.get_message_read_receipts.makeRequest()
+            request.addParam(currentAccount!!.id)
+            request.addParam(messageId)
+
+            val response = rpc.send(request)
+            val array = response.result.asJsonArray
+
+            val receipts = mutableListOf<ReadReceipt>()
+
+            for (element in array) {
+                val obj = element.asJsonObject
+
+                val contactRequest = RpcMethod.get_contact.makeRequest()
+                contactRequest.addParam(currentAccount!!.id)
+                contactRequest.addParam(obj.get("contactId").asInt)
+
+                val contact = gson.fromJson(rpc.send(contactRequest).result, DcContact::class.java)
+
+                receipts += ReadReceipt(
+                    contact = contact,
+                    timestamp = obj.get("timestamp").asInt
+                )
+            }
+
+            _messageSeenState.update {
+                MessageSeenState(
+                    ready = true,
+                    count = receipts.size,
+                    receipts = receipts
+                )
+            }
+        }
+    }
+
+    fun clearReadReceipts() {
+        viewModelScope.launch {
+            delay(250.milliseconds)
+
+            _messageSeenState.update { MessageSeenState() }
         }
     }
 }

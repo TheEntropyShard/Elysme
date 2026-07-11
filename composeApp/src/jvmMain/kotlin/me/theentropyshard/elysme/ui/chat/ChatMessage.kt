@@ -113,6 +113,14 @@ fun ChatMessage(
     var menuVisible by remember { mutableStateOf(false) }
     var menuOffset by remember { mutableStateOf(Offset.Zero) }
 
+    LaunchedEffect(menuVisible) {
+        if (menuVisible) {
+            model.loadReadReceipts(message.id)
+        } else {
+            model.clearReadReceipts()
+        }
+    }
+
     val googleSans = Fonts.googleSans()
 
     val hasQuote = message.hasQuote()
@@ -154,14 +162,18 @@ fun ChatMessage(
             }
 
             BoxWithConstraints {
+                val messageSeenState by model.messageSeenState.collectAsState()
+
                 val clipboard = LocalClipboard.current
 
                 MessageContextMenu(
                     position = menuOffset,
                     visible = menuVisible,
-                    onDismissRequest = { menuVisible = false },
+                    onDismissRequest = {
+                        menuVisible = false
+                    },
                     items = {
-                        mutableListOf(
+                        mutableListOf<MessageMenuItem>(
                             MessageMenuItem.ActionMenuItem(
                                 icon = Res.drawable.reply24dp,
                                 text = "Reply",
@@ -195,6 +207,33 @@ fun ChatMessage(
                                         text = "Edit",
                                         description = "Edit the message",
                                         onClick = { onEdit(message) }
+                                    )
+                                )
+
+                                add(MessageMenuItem.Separator())
+
+                                add(
+                                    MessageMenuItem.ActionMenuItem(
+                                        icon = Res.drawable.read24dp,
+                                        text = if (messageSeenState.ready) "${messageSeenState.count} seen" else "Loading...",
+                                        description = "See which contacts read your message",
+                                        trailingContent = {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy((-5).dp)
+                                            ) {
+                                                for (receipt in messageSeenState.receipts) {
+                                                    ProfileImage(
+                                                        profileImage = receipt.contact.profileImage,
+                                                        size = 20.dp,
+                                                        displayName = receipt.contact.displayName,
+                                                        contentDescription = null,
+                                                        color = receipt.contact.color.toColor()
+                                                    )
+                                                }
+                                            }
+                                        },
+                                        onClick = {}
                                     )
                                 )
                             }
