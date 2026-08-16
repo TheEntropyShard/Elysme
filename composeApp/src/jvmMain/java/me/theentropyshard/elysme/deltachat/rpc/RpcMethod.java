@@ -39,9 +39,7 @@ public enum RpcMethod {
     start_io,
     stop_io,
     get_account_info,
-    get_push_state,
     get_account_file_size,
-    get_provider_info,
     is_configured,
     get_info,
     get_storage_usage_report_string,
@@ -116,6 +114,8 @@ public enum RpcMethod {
     get_message_html,
     get_messages,
     get_message_notification_info,
+    set_pinned_message_state,
+    get_pinned_messages,
     delete_messages,
     delete_messages_for_all,
     get_message_info,
@@ -143,7 +143,6 @@ public enum RpcMethod {
     import_vcard,
     import_vcard_contents,
     make_vcard,
-    set_draft_vcard,
     get_chat_id_by_contact_id,
     get_chat_media,
     export_backup,
@@ -156,7 +155,12 @@ public enum RpcMethod {
     maybe_network,
     get_connectivity,
     get_connectivity_html,
+    set_location,
     get_locations,
+    send_locations_to_chat,
+    is_sending_locations,
+    is_sending_locations_to_chat,
+    stop_sending_locations,
     send_webxdc_status_update,
     send_webxdc_realtime_data,
     send_webxdc_realtime_advertisement,
@@ -191,7 +195,8 @@ public enum RpcMethod {
     misc_send_text_message,
     misc_send_msg,
     misc_set_draft,
-    misc_send_draft;
+    misc_send_draft,
+    get_app_version;
 
     public RpcRequest makeRequest() {
         return new RpcRequest(this.name());
