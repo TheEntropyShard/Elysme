@@ -440,24 +440,60 @@ private fun ReactionsView(
 ) {
     if (reactions == null || reactions.reactionsByContact == null) return
 
-    val transformed = transformReactions(reactions.reactionsByContact)
-
     FlowRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        for (entry in transformed) {
-            ReactionItem(
-                model = model,
-                emoji = entry.key,
-                contacts = entry.value
-            )
+        if (reactions.reactionsByContact.isNotEmpty()) {
+            for (entry in transformReactions(reactions.reactionsByContact)) {
+                ContactReactionItem(
+                    model = model,
+                    emoji = entry.key,
+                    contacts = entry.value
+                )
+            }
+        } else {
+            for (reaction in reactions.reactions) {
+                ChannelReactionItem(count = reaction.count, emoji = reaction.emoji)
+            }
         }
     }
 }
 
 @Composable
-private fun ReactionItem(
+fun ChannelReactionItem(
+    modifier: Modifier = Modifier,
+    count: Int,
+    emoji: String
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(percent = 50))
+            .background(color = MaterialTheme.colorScheme.inversePrimary)
+            .padding(start = 6.dp, top = 2.dp, bottom = 2.dp, end = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            modifier = Modifier.padding(bottom = 2.dp),
+            text = emoji,
+            lineHeight = 20.sp,
+            fontSize = 16.sp,
+        )
+
+        Spacer(modifier = Modifier.width(2.dp))
+
+        Text(
+            modifier = Modifier.padding(end = 2.dp),
+            text = "$count",
+            fontFamily = Fonts.googleSans(),
+            lineHeight = 20.sp,
+            fontSize = 16.sp,
+        )
+    }
+}
+
+@Composable
+private fun ContactReactionItem(
     modifier: Modifier = Modifier,
     model: MainViewModel,
     emoji: String,
