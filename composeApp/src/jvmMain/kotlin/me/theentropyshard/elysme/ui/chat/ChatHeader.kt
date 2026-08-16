@@ -40,7 +40,6 @@ import org.jetbrains.compose.resources.painterResource
 fun ChatHeader(
     modifier: Modifier = Modifier,
     chat: DcChat,
-    messageCount: Int,
     onNameClick: () -> Unit,
     onMediaClick: () -> Unit,
 ) {
@@ -69,7 +68,7 @@ fun ChatHeader(
             }
 
             if (text != null) {
-                Text(text = "$text \u2022 $messageCount messages", fontFamily = Fonts.googleSans())
+                Text(text = text, fontFamily = Fonts.googleSans())
             }
         }
 
