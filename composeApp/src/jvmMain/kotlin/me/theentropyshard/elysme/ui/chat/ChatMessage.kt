@@ -215,7 +215,15 @@ fun ChatMessage(
                                 add(
                                     MessageMenuItem.ActionMenuItem(
                                         icon = Res.drawable.read24dp,
-                                        text = if (messageSeenState.ready) "${messageSeenState.count} seen" else "Loading...",
+                                        text = if (messageSeenState.ready) {
+                                            if (messageSeenState.count == 0) {
+                                                "Nobody viewed"
+                                            } else {
+                                                "${messageSeenState.count} seen"
+                                            }
+                                        } else {
+                                            "Loading..."
+                                        },
                                         description = "See which contacts read your message",
                                         trailingContent = {
                                             Row(
